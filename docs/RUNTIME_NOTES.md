@@ -36,7 +36,7 @@ from genlayer import *
 - `gl.nondet.web.get(url)` returns a response object with `.status` (int) and `.body` (bytes).
 - Decoding `.body` using `.decode("utf-8")` or `.decode("utf-8", errors="replace")` handles arbitrary remote web content safely.
 - **Probe Results on Studionet**:
-  - `https://raw.githubusercontent.com/.../supports.md`: Returned HTTP `200`, length `1258` bytes.
+  - `https://raw.githubusercontent.com/huzyow155/citation-court-genlayer/main/fixtures/supports.md`: Returned HTTP `200`, length `1258` bytes.
   - `https://example.com`: Returned HTTP `200`, length `577` bytes.
   - Non-existent 404 URL: Returned HTTP `404`.
   - Dynamic / changing pages (like `en.wikipedia.org/wiki/Special:Random`): Returns HTTP 200, but because the URL returns different content per validator, comparing raw page byte lengths across validators causes `MAJORITY_DISAGREE`.

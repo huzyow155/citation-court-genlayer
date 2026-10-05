@@ -44,14 +44,23 @@ def _normalize_text(text: str) -> str:
 
 
 def _clean_html(html: str) -> str:
+    """Pure function: remove script/style/noscript blocks and tags, unescape entities, collapse whitespace."""
     if not html:
         return ""
+    import html as html_lib
+    import re
+
+    # Remove script, style, noscript tags and their contents
     cleaned = re.sub(r"(?is)<script[^>]*>.*?</script>", " ", html)
     cleaned = re.sub(r"(?is)<style[^>]*>.*?</style>", " ", cleaned)
     cleaned = re.sub(r"(?is)<noscript[^>]*>.*?</noscript>", " ", cleaned)
+    # Strip all HTML tags
     cleaned = re.sub(r"<[^>]+>", " ", cleaned)
+    # Fix whitespace before trailing punctuation introduced by stripping inline tags
     cleaned = re.sub(r"\s+([.,;:!?])", r"\1", cleaned)
+    # Unescape HTML entities
     unescaped = html_lib.unescape(cleaned)
+    # Collapse whitespace
     return " ".join(unescaped.split())
 
 

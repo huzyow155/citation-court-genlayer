@@ -42,9 +42,9 @@ On traditional deterministic blockchains, contracts cannot make outbound HTTP ca
 - **Network**: GenLayer Studionet (Chain ID: `61999`)
 - **RPC URL**: `https://studio.genlayer.com/api`
 - **CitationCourt Address**: `0x58aDf2Fd47dD939623BFd66929ec26117fb8CFa5`
-- **Studionet Explorer**: [https://explorer-studio.genlayer.com/address/0x58aDf2Fd47dD939623BFd66929ec26117fb8CFa5](https://explorer-studio.genlayer.com/address/0x58aDf2Fd47dD939623BFd66929ec26117fb8CFa5)
+- **Studionet Explorer**: https://explorer-studio.genlayer.com/address/0x58aDf2Fd47dD939623BFd66929ec26117fb8CFa5
 - **CitedBoard Consumer Address**: `0x339dA01705d57f0d6AD917f0eC4950f8a8f95CC4`
-- **Consumer Explorer**: [https://explorer-studio.genlayer.com/address/0x339dA01705d57f0d6AD917f0eC4950f8a8f95CC4](https://explorer-studio.genlayer.com/address/0x339dA01705d57f0d6AD917f0eC4950f8a8f95CC4)
+- **Consumer Explorer**: https://explorer-studio.genlayer.com/address/0x339dA01705d57f0d6AD917f0eC4950f8a8f95CC4
 
 ---
 

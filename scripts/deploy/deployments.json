@@ -2,7 +2,7 @@
   "network": "GenLayer Studionet",
   "chainId": 61999,
   "rpc": "https://studio.genlayer.com/api",
-  "explorerBase": "https://explorer-studio.genlayer.com/address/",
+  "explorerBase": "https://explorer-studio.genlayer.com",
   "citationCourt": {
     "address": "0x58aDf2Fd47dD939623BFd66929ec26117fb8CFa5",
     "deployTxHash": "0x99c85d3d9820f1fc691559dfb0ec5e1744adf6ef77c132c54c51b6f26dcc2c04",

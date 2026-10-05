@@ -4,7 +4,7 @@
 - **Network**: GenLayer Studionet
 - **Chain ID**: 61999
 - **RPC URL**: `https://studio.genlayer.com/api`
-- **Explorer Base**: `https://explorer-studio.genlayer.com/address/`
+- **Explorer URL**: `https://explorer-studio.genlayer.com`
 - **Contract Class**: `CitationCourt`
 - **Source File**: `contracts/CitationCourt.py`
 - **Source SHA-256**: `459370ecf5916af40937602d1c266f467aa9228e832545e989aa0718a2e0a7e2`
@@ -24,7 +24,7 @@
    - SHA-256: `459370ecf5916af40937602d1c266f467aa9228e832545e989aa0718a2e0a7e2`
 4. Difference against local `contracts/CitationCourt.py`:
    - Commit `7e24b65` (the exact commit deployed): byte-for-byte identical (`diff` output is empty).
-   - Current commit `9222a82`: diff contains only the module-level header docstring added during documentation polish (`+8` lines).
+   - Current commit / HEAD: byte-for-byte identical (`diff` output is empty, SHA-256 matches `459370ecf5916af40937602d1c266f467aa9228e832545e989aa0718a2e0a7e2`).
 
 ---
 

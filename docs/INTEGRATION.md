@@ -3,7 +3,7 @@
 ## 1. Network & Deployment Reference
 - **Network**: GenLayer Studionet (Chain ID: `61999`)
 - **RPC Endpoint**: `https://studio.genlayer.com/api`
-- **Explorer Base**: `https://explorer-studio.genlayer.com/address/`
+- **Explorer URL**: `https://explorer-studio.genlayer.com`
 - **CitationCourt Address**: `0x58aDf2Fd47dD939623BFd66929ec26117fb8CFa5`
 - **CitedBoard Consumer Address**: `0x339dA01705d57f0d6AD917f0eC4950f8a8f95CC4`
 
