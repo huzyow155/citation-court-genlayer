@@ -1,0 +1,22 @@
+{
+  "name": "citation-court-genlayer",
+  "version": "1.0.0",
+  "description": "Citation Court Intelligent Contract on GenLayer: multi-validator citation and claim-evidence verification",
+  "main": "index.js",
+  "scripts": {
+    "test": "python -m unittest discover tests"
+  },
+  "keywords": [
+    "genlayer",
+    "intelligent-contracts",
+    "citation-verification",
+    "fact-checking",
+    "hallucination-detection"
+  ],
+  "author": "huzyow155",
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "genlayer-js": "^1.1.8"
+  }
+}
