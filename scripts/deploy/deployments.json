@@ -1,0 +1,23 @@
+{
+  "network": "GenLayer Studionet",
+  "chainId": 61999,
+  "rpc": "https://studio.genlayer.com/api",
+  "explorerBase": "https://explorer-studio.genlayer.com/address/",
+  "citationCourt": {
+    "address": "0x58aDf2Fd47dD939623BFd66929ec26117fb8CFa5",
+    "deployTxHash": "0x99c85d3d9820f1fc691559dfb0ec5e1744adf6ef77c132c54c51b6f26dcc2c04",
+    "deployStatus": "ACCEPTED",
+    "consensusResult": "MAJORITY_AGREE",
+    "sourceFile": "contracts/CitationCourt.py",
+    "sourceSha256": "459370ecf5916af40937602d1c266f467aa9228e832545e989aa0718a2e0a7e2",
+    "explorerUrl": "https://explorer-studio.genlayer.com/address/0x58aDf2Fd47dD939623BFd66929ec26117fb8CFa5"
+  },
+  "citedBoardConsumer": {
+    "address": "0x339dA01705d57f0d6AD917f0eC4950f8a8f95CC4",
+    "deployTxHash": "0xda0bfe5a8cc325a79eb10db9147eec71f4f15ffd539a5a2fa9c8690f5c0a548e",
+    "deployStatus": "ACCEPTED",
+    "consensusResult": "MAJORITY_AGREE",
+    "sourceFile": "examples/consumer/consumer.py",
+    "explorerUrl": "https://explorer-studio.genlayer.com/address/0x339dA01705d57f0d6AD917f0eC4950f8a8f95CC4"
+  }
+}
