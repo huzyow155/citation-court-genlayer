@@ -3,58 +3,62 @@
 ## 1. Overview and Problem Context
 Citation Court solves the problem of **fabricated, hallucinated, or ungrounded citations** across digital publications and AI-generated outputs. Often, an author or automated agent presents a factual statement accompanied by a hyperlink, creating an illusion of verification. In practice, the linked page frequently fails to mention the claimed fact, directly contradicts it, or presents unrelated narrative.
 
-Existing off-chain tools and smart contract prototypes address portions of this verification challenge, but Citation Court introduces a distinct decentralized consensus model.
+Existing off-chain tools and smart contract paradigms address portions of this verification challenge, but Citation Court introduces a distinct decentralized consensus model.
 
 ---
 
-## 2. Closest Existing Solutions
+## 2. Search Methodology & Verified Links
 
-### A. Academic Research & Systems
-1. **CiteCheck: Detecting Citation Hallucinations in Large Language Models (arXiv:2605.27700)**
-   - **Link**: [https://arxiv.org/abs/2605.27700](https://arxiv.org/abs/2605.27700)
-   - **Mechanism**: A hybrid, retrieval-grounded framework that queries scholarly databases and evaluates whether citations correspond to real documents and whether metadata is faithful.
-   - **Execution**: Centralized Python/API pipeline; produces offline evaluation scores.
+### Search Queries Executed:
+1. `site:github.com "genlayer" "fact" OR "oracle" OR "claim"`
+2. `site:github.com "genlayer" contracts "gl.Contract"`
+3. `site:github.com/yeagerai "genlayer" OR "contracts" OR "examples"`
+4. `site:github.com/genlayerlabs "web.get" OR "strict_eq" OR "contracts"`
+5. `"CiteCheck" OR "RefLens" OR "GhostCite" arxiv citation hallucination`
 
-2. **RefLens: Evidence-Grounded Verification for LLM Citations (AAAI 2026)**
-   - **Link**: [https://doi.org/10.1609/aaai.v40i1.refllens](https://doi.org/10.1609/aaai.v40i1.refllens) (arXiv: [https://arxiv.org/abs/2510.14920](https://arxiv.org/abs/2510.14920))
-   - **Mechanism**: Multi-agent architecture that retrieves documents and extracts verbatim supporting spans to display evidence cards on a dashboard.
-   - **Execution**: Centralized server; intended for human UI inspection.
-
-3. **GhostCite: Empirical Study of Citation Hallucinations (arXiv:2602.06718)**
-   - **Link**: [https://arxiv.org/abs/2602.06718](https://arxiv.org/abs/2602.06718)
-   - **Mechanism**: Large-scale analysis demonstrating that LLMs prioritize superficial citation formatting over actual document grounding.
-
-### B. GenLayer Community Prior Art
-We performed targeted queries for prior art on GitHub:
-- `site:github.com "genlayer" "fact"`
-- `site:github.com "genlayer" "oracle" "claim"`
-- `site:github.com "genlayer" "citation"`
-
-Closest projects identified:
-1. **`evidence-claim-escrow`** ([https://github.com/genlayer-community/evidence-claim-escrow](https://github.com/genlayer-community/evidence-claim-escrow)):
-   - An escrow contract on GenLayer that verifies claim statements against web page content before releasing funds.
-   - **Differences**: Uses raw LLM judgment to resolve claim-condition booleans without mandatory verbatim substring grounding or deterministic length/quote downgrade rules.
-2. **`canon`** ([https://github.com/genlayer-community/canon](https://github.com/genlayer-community/canon)):
-   - A living registry contract on GenLayer recording factual updates and dispute resolutions based on validator consensus.
-   - **Differences**: Registry-focused; handles revision histories rather than granular claim-to-URL citation verification with deterministic keyword-density windowing.
+### Verification of Candidate Links (HTTP Status & Titles):
+- **`https://github.com/genlayerlabs/genlayer-project-boilerplate`**: HTTP 200 (GenLayer official boilerplate with contracts, web retrieval, and testing suite).
+- **`https://docs.genlayer.com`**: HTTP 200 (Title: *GenLayer — The Adjudication Layer for the Agentic Economy*).
+- **`https://arxiv.org/abs/2605.27700`**: HTTP 200 (Title: *[2605.27700] CiteCheck: Retrieval-Grounded Detection of LLM Citation Hallucinations in Scientific Text*).
+- **`https://arxiv.org/abs/2602.06718`**: HTTP 200 (Title: *[2602.06718] GhostCite: A Large-Scale Analysis of Citation Validity in the Age of Large Language Models*).
+- *(Note: Hallucinated / invalid links `https://github.com/genlayer-community/evidence-claim-escrow`, `https://github.com/genlayer-community/canon`, `https://arxiv.org/abs/2510.14920`, and DOI `10.1609/aaai.v40i1.refllens` returned HTTP 404 or mismatched titles and have been completely removed from this documentation).*
 
 ---
 
-## 3. Honest Comparison Matrix: What Is New vs. What Is Not
+## 3. Related Prior Art
 
-| Dimension | Academic Systems (RefLens / CiteCheck) | `evidence-claim-escrow` (GenLayer Community) | Citation Court (This Project) |
+### A. Academic Literature
+1. **CiteCheck (arXiv:2605.27700)**:
+   - Evaluates LLM citation faithfulness against scholarly documents via centralized retrieval and metadata checking.
+   - Outputs soft evaluation scores for offline review.
+2. **GhostCite (arXiv:2602.06718)**:
+   - Empirical study demonstrating that language models frequently invent citations prioritizing plausible formatting over true document presence.
+3. **Evidence Extraction Systems (Off-chain)**:
+   - Certain off-chain pipelines attempt span extraction for human review; however, specific quote-verification claims for "RefLens" remain unconfirmed in verified peer-reviewed venues.
+
+### B. GenLayer Ecosystem Prior Art
+In the official GenLayer repositories (`genlayerlabs/genlayer-project-boilerplate`), example contracts (such as `contracts/football_bets.py`) demonstrate web-based resolution:
+- The contract fetches web URLs via `gl.nondet.web.get(resolution_url)` and resolves bets by prompting an LLM to extract game winners and scores.
+- **Key Distinction**: It relies directly on the LLM's returned decision fields without requiring verbatim quote containment, substring validation, or length-gated mechanical downgrade.
+
+---
+
+## 4. Honest Comparison Matrix: What Is New vs. What Is Not
+
+| Dimension | Academic Systems (CiteCheck) | Official GenLayer Boilerplate (`football_bets.py`) | Citation Court (This Project) |
 | :--- | :--- | :--- | :--- |
-| **Execution Environment** | Centralized server / local Python script | GenLayer GenVM (Python) | GenLayer GenVM (Python) *(Not new)* |
-| **Autonomous Web Retrieval** | Centralized crawler / database APIs | `gl.nondet.web.get(url)` | `gl.nondet.web.get(url)` with structured URL validation |
-| **Consensus Mechanism** | None (single process) | Equivalence principle on raw boolean | `gl.eq_principle.strict_eq` on a single canonical enum *(Not new)* |
-| **Verbatim Quote Extraction** | Yes (RefLens extracts verbatim spans) | No (evaluates overall text) | Yes: LLM extracts candidate quote *(Not new conceptually)* |
-| **Deterministic Code Downgrade Gate** | No (generates UI alerts or soft scores) | No | **Yes (`_ground()` code gate mechanically forces `NOT_ADDRESSED` on missing quote)** *(New on-chain)* |
-| **Deterministic Keyword Windowing** | Standard chunking / embeddings | Direct truncation | **Deterministic keyword-density windowing maintaining original doc order** |
-| **On-Chain Composability** | None | Escrow logic | Cross-contract synchronous view interface for external dApps |
+| **Execution Environment** | Centralized server / local script | GenLayer GenVM (Python) | GenLayer GenVM (Python) *(Not new)* |
+| **Autonomous Web Retrieval** | Centralized crawler / API | `gl.nondet.web.get(url)` | `gl.nondet.web.get(url)` with structured URL validation |
+| **Consensus Mechanism** | None (single process) | Equivalence principle on raw data | `gl.eq_principle.strict_eq` on a single canonical enum *(Not new)* |
+| **Verbatim Quote Grounding** | Offline metadata check | None | **Mandatory verbatim quote substring check (`_ground()`)** *(New on-chain)* |
+| **Deterministic Downgrade Gate** | Soft scores in report | None | **Code mechanically forces `NOT_ADDRESSED` on missing quote** *(New on-chain)* |
+| **Deterministic Long-Page Windowing** | Centralized chunking | None / direct truncation | **Deterministic keyword-density windowing preserving document order** |
+| **On-Chain Composability** | None | Bet settlement | Synchronous cross-contract view queries for dependent dApps |
 
 ### What Is NOT New:
-- Verbatim quote extraction itself is not new: off-chain academic tools (like RefLens) already extract text spans for human review.
-- Web retrieval and LLM evaluation on GenLayer are platform features, not invented by this contract.
+- Web retrieval (`gl.nondet.web.get`) and LLM inference (`gl.nondet.exec_prompt`) are platform features of GenLayer GenVM.
+- Consensus via `gl.eq_principle.strict_eq` is standard GenLayer architecture.
 
 ### What IS Novel in Citation Court:
-The **deterministic on-chain downgrade rule (`_ground`)**: Rather than relying on an LLM to evaluate its own grounding or storing free-form quotes on-chain, deterministic code acts as an unyielding filter. If an LLM hallucinates `SUPPORTS` or `CONTRADICTS` with an invented passage or a passage $<25$ characters, the contract code deterministically downgrades the verdict to `NOT_ADDRESSED`. Independent validators converge on the single canonical enum while eliminating quote text from the consensus string.
+The **deterministic on-chain downgrade rule (`_ground`)**:
+Rather than trusting the model's reported verdict, contract code enforces that the candidate quote is at least 25 characters long and is a verbatim substring of the cleaned source text. If a model hallucinates an affirmative verdict with a fabricated quote, the code deterministically downgrades the verdict to `NOT_ADDRESSED`. Independent validators compare only this single canonical enum, preventing quote discrepancies from fracturing consensus.

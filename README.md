@@ -64,12 +64,20 @@ On traditional deterministic blockchains, contracts cannot make outbound HTTP ca
 | **Case H (Wikipedia Fixed)** | 8 | `SUPPORTS` | ACCEPTED | MAJORITY_AGREE | 15.33s |
 | **Consumer Cross-Contract** | 1 | `POSTED` | ACCEPTED | MAJORITY_AGREE | 4.10s |
 
-### Latency Measurement Methodology
-- **Timing window**: Measured synchronously in client scripts as wall-clock elapsed time from `client.writeContract()` submission to `client.waitForTransactionReceipt()` confirmation (`ACCEPTED` / `MAJORITY_AGREE`).
-- **Raw consensus judgment latencies**:
-  - 7 initial test cases: `[15.12, 15.52, 15.32, 12.06, 15.40, 12.08, 9.42]` seconds. Average = **13.56s**.
-  - 8 cases including Case F re-judge (`8.85s`): Average = **12.97s**.
-  - 9 cases including Case H Wikipedia (`15.33s`): Average = **13.23s**.
+### Latency Measurement Methodology & Groups
+Latency is measured synchronously in client scripts as wall-clock elapsed time `(Date.now() - t0) / 1000` from `client.writeContract()` submission to `client.waitForTransactionReceipt()` confirmation (`ACCEPTED` / `MAJORITY_AGREE`).
+
+The transactions naturally split into two operational groups:
+1. **Full LLM Consensus Judgments (A, B, C, D, E, H)**:
+   - Evaluates full page text and executes multi-validator LLM prompt reasoning.
+   - Raw values: `[15.12, 15.52, 15.32, 12.06, 15.40, 15.33]` seconds.
+   - **Mean**: **14.79s** (Range: 12.06s – 15.52s).
+2. **Fast UNREADABLE Path (F attempt 1, F re-judge, G)**:
+   - Bypasses LLM prompt execution immediately upon HTTP error or page length < 200 chars.
+   - Case F (404 attempt 1): `12.08s`
+   - Case F (404 re-judge): `8.85s`
+   - Case G (Short page < 200 chars): `9.42s`
+   - **Mean**: **10.12s** (Range: 8.85s – 12.08s).
 
 ---
 

@@ -1,14 +1,6 @@
 # v0.2.16
 # { "Depends": "py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6" }
 
-"""
-CitationCourt Intelligent Contract on GenLayer Studionet.
-
-Decentralized multi-validator citation and claim-evidence verification.
-Evaluates whether a web page behind an arbitrary URL actually backs up a claimed fact.
-Enforces verbatim quote grounding to downgrade ungrounded verdicts to NOT_ADDRESSED.
-"""
-
 import json
 from genlayer import *
 

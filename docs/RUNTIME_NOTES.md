@@ -40,7 +40,7 @@ from genlayer import *
   - `https://example.com`: Returned HTTP `200`, length `577` bytes.
   - Non-existent 404 URL: Returned HTTP `404`.
   - Dynamic / changing pages (like `en.wikipedia.org/wiki/Special:Random`): Returns HTTP 200, but because the URL returns different content per validator, comparing raw page byte lengths across validators causes `MAJORITY_DISAGREE`.
-  - **Fixed Wikipedia Article (`https://en.wikipedia.org/wiki/Earth`)**: Successfully fetched by all validators on Studionet. Cleaned HTML exceeded 8000 characters, successfully triggered deterministic keyword-density windowing, and validators converged with `MAJORITY_AGREE` on `SUPPORTS` (Claim ID `8`, Tx `0xdb555c3638b551b6aeef67a88b2f58063881995af5ba449d2c8e4c6d4c261ecf`, latency `15.33s`).
+  - **Fixed Wikipedia Article (`https://en.wikipedia.org/wiki/Earth`)**: Successfully fetched on Studionet. Measured locally, the page HTML is 1,756,213 bytes and cleaned text is 220,012 characters (exceeding the 8,000 character limit), so deterministic keyword windowing is inferred to have run. Validators reached `MAJORITY_AGREE` on `SUPPORTS` (Claim ID `8`, Tx `0xdb555c3638b551b6aeef67a88b2f58063881995af5ba449d2c8e4c6d4c261ecf`, latency `15.33s`).
   - **Key Architectural Takeaway**: The consensus function passed to `gl.eq_principle.strict_eq` must return **strictly one canonical enum** (`SUPPORTS`, `CONTRADICTS`, `NOT_ADDRESSED`, or `UNREADABLE`). Validators must never include raw byte counts, timestamps, or free text in the consensus string.
 
 ---
