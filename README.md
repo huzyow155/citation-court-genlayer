@@ -61,27 +61,35 @@ On traditional deterministic blockchains, contracts cannot make outbound HTTP ca
 | **Case F (404 Unreadable)** | 6 | `UNREADABLE` | ACCEPTED | MAJORITY_AGREE | 12.08s |
 | **Case F (Re-judge Attempt)**| 6 | `UNREADABLE` | ACCEPTED | MAJORITY_AGREE | 8.85s |
 | **Case G (Short Page <200)** | 7 | `UNREADABLE` | ACCEPTED | MAJORITY_AGREE | 9.42s |
+| **Case H (Wikipedia Fixed)** | 8 | `SUPPORTS` | ACCEPTED | MAJORITY_AGREE | 15.33s |
 | **Consumer Cross-Contract** | 1 | `POSTED` | ACCEPTED | MAJORITY_AGREE | 4.10s |
 
-Average consensus judgment latency: **~13.2s**.
+### Latency Measurement Methodology
+- **Timing window**: Measured synchronously in client scripts as wall-clock elapsed time from `client.writeContract()` submission to `client.waitForTransactionReceipt()` confirmation (`ACCEPTED` / `MAJORITY_AGREE`).
+- **Raw consensus judgment latencies**:
+  - 7 initial test cases: `[15.12, 15.52, 15.32, 12.06, 15.40, 12.08, 9.42]` seconds. Average = **13.56s**.
+  - 8 cases including Case F re-judge (`8.85s`): Average = **12.97s**.
+  - 9 cases including Case H Wikipedia (`15.33s`): Average = **13.23s**.
 
 ---
 
 ## Test Suite & Star Test
-The project includes a 3-layer test suite with 21 unit tests:
+The project includes a 3-layer test suite with 22 unit tests:
 ```bash
-python -m unittest discover tests
+python -m unittest discover tests -v
 ```
-- **Layer 1 (Pure Functions & Star Test)**: Validates text normalization, HTML cleaning, keyword-density windowing, structured URL parsing, and the **Star Test** (proves that fabricated quotes are downgraded to `NOT_ADDRESSED` while naive baselines fail).
-- **Layer 2 (Mocked Simulator)**: Tests all contract error conditions, permission checks, SSRF injection resistance, 404 attempt accounting, and discovery view limits.
+- **Layer 1 (Pure Functions & Star Test)**: Validates text normalization, HTML cleaning, keyword-density windowing, structured URL parsing, the **Star Test** (fabricated quotes downgraded to `NOT_ADDRESSED`), and the **Grounding Limitation Test** (injected quote present in source still passes grounding).
+- **Layer 2 (Mocked Simulator)**: Tests all contract error conditions, permission checks, SSRF URL rejection, 404 attempt accounting, and discovery view limits using a pure-Python simulator (`CitationCourtSim`). *(Note: Layer 2 simulator does not execute under GenVM; all 15 UserError strings are verified identical to the contract).*
 - **Layer 3 (Consensus Dynamics)**: Validates that heterogeneous validator models converge to the exact same canonical enum.
 
 ---
 
 ## Known Limitations
-1. **Dynamic / Client-Side Rendered Web Pages:** Pages relying exclusively on client-side JavaScript execution (SPAs) will yield raw script/template markup or minimal text (<200 chars), resulting in `UNREADABLE`.
-2. **Volatile Web Content:** If a target URL changes between validator execution windows, validators may fetch divergent text, leading to `MAJORITY_DISAGREE`.
-3. **Paywalled / Bot-Protected Content:** Sites enforcing Cloudflare CAPTCHAs, CloudFront blocks, or subscription paywalls will return HTTP 403/401 and resolve as `UNREADABLE`.
+1. **Grounding Limitation & Adversarial Text:** The verbatim grounding rule proves that a passage literally appears within the fetched source page; it does NOT prove the source text is reliable, truthful, or free of adversarial injections. If an adversarial page contains an injected assertion and the model quotes it verbatim, grounding will succeed. Defending against prompt injection relies strictly on framing untrusted data inside structured delimiters and LLM instruction-following.
+2. **Client-Side Rendered Web Pages:** Pages relying exclusively on client-side JavaScript execution (SPAs) will yield raw script/template markup or minimal text (<200 chars), resulting in `UNREADABLE`.
+3. **Volatile Web Content:** If a target URL changes between validator execution windows, validators may fetch divergent text, leading to `MAJORITY_DISAGREE`.
+4. **Paywalled / Bot-Protected Content:** Sites enforcing Cloudflare CAPTCHAs, CloudFront blocks, or subscription paywalls will return HTTP 403/401 and resolve as `UNREADABLE`.
+5. **Layer 2/3 Test Execution:** Layer 2 and Layer 3 tests run against a pure-Python simulator and do not execute under GenVM.
 
 ---
 

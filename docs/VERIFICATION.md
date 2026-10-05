@@ -14,7 +14,36 @@
 - **Deploy Status**: `ACCEPTED`
 - **Deploy Consensus Result**: `MAJORITY_AGREE`
 
+### Source Code Verification Method
+1. The transaction was retrieved via RPC `client.getTransaction({ hash: '0x99c85d3d9820f1fc691559dfb0ec5e1744adf6ef77c132c54c51b6f26dcc2c04' })` and raw data dumped to `scripts/tx_raw.json`.
+2. The deployed contract code resides in `tx.data.contract_code` encoded as Base64.
+3. Payload analysis:
+   - First 16 bytes (hex): `232076302e322e31360a23207b202244` (ASCII `# v0.2.16\n# { "D`)
+   - Last 16 bytes (hex): `662e6d6574615b227374617473225d0a` (ASCII `f.meta["stats"]\n`)
+   - Decoded length: `16,425` bytes.
+   - SHA-256: `459370ecf5916af40937602d1c266f467aa9228e832545e989aa0718a2e0a7e2`
+4. Difference against local `contracts/CitationCourt.py`:
+   - Commit `7e24b65` (the exact commit deployed): byte-for-byte identical (`diff` output is empty).
+   - Current commit `9222a82`: diff contains only the module-level header docstring added during documentation polish (`+8` lines).
+
 ---
+
+## 2. Latency Measurement Methodology & Summary
+- **Measurement Method**: Synchronous client-side wall-clock delta `(Date.now() - t0) / 1000` measured from transaction submission (`client.writeContract`) until transaction receipt confirmation (`client.waitForTransactionReceipt`).
+- **Raw Measurements**:
+  - Run (a) Supports: `15.12s`
+  - Run (b) Contradicts: `15.52s`
+  - Run (c) Not Addressed: `15.32s`
+  - Run (d) Near Miss: `12.06s`
+  - Run (e) Prompt Injection: `15.40s`
+  - Run (f) 404 Unreadable Attempt 1: `12.08s`
+  - Run (f) 404 Unreadable Attempt 2 (re-judge): `8.85s`
+  - Run (g) Short Page (<200 chars): `9.42s`
+  - Run (h) Wikipedia Fixed Article: `15.33s`
+- **Averages**:
+  - 7 initial test runs: `13.56s`
+  - 8 runs including Case F re-judge: `12.97s`
+  - 9 runs including Case H Wikipedia: `13.23s`
 
 ## 2. On-Chain Verification Runs (Studionet Transactions)
 
@@ -118,6 +147,20 @@ All hashes and read-backs below are raw outputs generated during the Milestone 4
 - **Read-back Ruling**:
   ```json
   {"attempts": 1, "claim_id": "7", "schema_version": "1", "verdict": "UNREADABLE"}
+  ```
+
+### Run (h): Fixed Wikipedia Article (`SUPPORTS`)
+- **Claim ID**: `8`
+- **Claim**: `Earth is the third planet from the Sun and the only astronomical object known to harbor life.`
+- **URL**: `https://en.wikipedia.org/wiki/Earth`
+- **Lodge Tx Hash**: `0x5079397ca576761237edaac4b155b507c81802fa84b9e8da09f3b4bc094f5a9b`
+- **Judge Tx Hash**: `0xdb555c3638b551b6aeef67a88b2f58063881995af5ba449d2c8e4c6d4c261ecf`
+- **Judge Receipt Status**: `ACCEPTED`
+- **Judge Receipt Result**: `MAJORITY_AGREE`
+- **Measured Leader Latency**: `15.33s`
+- **Read-back Ruling**:
+  ```json
+  {"attempts": 1, "claim_id": "8", "schema_version": "1", "verdict": "SUPPORTS"}
   ```
 
 ---

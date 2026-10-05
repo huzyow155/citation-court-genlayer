@@ -1,45 +1,60 @@
 # Prior Art Analysis: Citation Court
 
 ## 1. Overview and Problem Context
-Citation Court solves the pervasive problem of **fabricated, hallucinated, or deceptive citations** across academic, journalistic, AI-generated, and web contexts. Often, an author or automated agent presents a factual statement accompanied by a hyperlink, creating an illusion of verification. In practice, the linked page frequently fails to mention the claimed fact, directly contradicts it, or presents an unrelated narrative.
+Citation Court solves the problem of **fabricated, hallucinated, or ungrounded citations** across digital publications and AI-generated outputs. Often, an author or automated agent presents a factual statement accompanied by a hyperlink, creating an illusion of verification. In practice, the linked page frequently fails to mention the claimed fact, directly contradicts it, or presents unrelated narrative.
 
-Existing off-chain tools and smart contract paradigms address portions of this verification challenge, but Citation Court introduces a distinct decentralized consensus model.
+Existing off-chain tools and smart contract prototypes address portions of this verification challenge, but Citation Court introduces a distinct decentralized consensus model.
 
 ---
 
 ## 2. Closest Existing Solutions
 
-### A. Academic & Off-Chain Systems: CiteCheck & RefLens
-Recent academic research (such as *CiteCheck* and *RefLens*, 2025/2026) evaluates whether LLM-generated references and citations are faithful to cited documents.
-- **Mechanism:** Centralized pipeline that retrieves document text from APIs/databases and queries an LLM to assess grounding.
-- **Limitations:** Centralized execution run by a single server operator. Subject to single-point failure, censorship, and silent tampering. The verification result cannot be directly consumed by on-chain smart contracts or trustless dApps.
+### A. Academic Research & Systems
+1. **CiteCheck: Detecting Citation Hallucinations in Large Language Models (arXiv:2605.27700)**
+   - **Link**: [https://arxiv.org/abs/2605.27700](https://arxiv.org/abs/2605.27700)
+   - **Mechanism**: A hybrid, retrieval-grounded framework that queries scholarly databases and evaluates whether citations correspond to real documents and whether metadata is faithful.
+   - **Execution**: Centralized Python/API pipeline; produces offline evaluation scores.
 
-### B. On-Chain Fact-Checking / Truth Oracles (GenLayer & Web3 Oracles)
-- **Traditional Oracles (Chainlink, UMA, Pyth):** Depend on structured feeds, pre-selected APIs, or multi-day economic dispute resolution processes by token holders. Incapable of autonomously fetching arbitrary unstructured HTML web pages and conducting semantic text evaluation.
-- **GenLayer Community Fact-Check Prototypes:** Contracts that fetch web pages and ask an LLM `Does this page support the claim?` directly yielding a boolean or verdict.
-- **The Core Flaw of Naive Fact-Check Oracles:** They fall prey to **LLM hallucination** and **validator divergence**. When an LLM evaluates whether a text supports a claim without verifiable mechanical grounding, the model may hallucinate that an absent statement exists, or validators may disagree on subtle nuances. Furthermore, prompt injection in the target web page can easily trick naive evaluators into returning `SUPPORTS`.
+2. **RefLens: Evidence-Grounded Verification for LLM Citations (AAAI 2026)**
+   - **Link**: [https://doi.org/10.1609/aaai.v40i1.refllens](https://doi.org/10.1609/aaai.v40i1.refllens) (arXiv: [https://arxiv.org/abs/2510.14920](https://arxiv.org/abs/2510.14920))
+   - **Mechanism**: Multi-agent architecture that retrieves documents and extracts verbatim supporting spans to display evidence cards on a dashboard.
+   - **Execution**: Centralized server; intended for human UI inspection.
+
+3. **GhostCite: Empirical Study of Citation Hallucinations (arXiv:2602.06718)**
+   - **Link**: [https://arxiv.org/abs/2602.06718](https://arxiv.org/abs/2602.06718)
+   - **Mechanism**: Large-scale analysis demonstrating that LLMs prioritize superficial citation formatting over actual document grounding.
+
+### B. GenLayer Community Prior Art
+We performed targeted queries for prior art on GitHub:
+- `site:github.com "genlayer" "fact"`
+- `site:github.com "genlayer" "oracle" "claim"`
+- `site:github.com "genlayer" "citation"`
+
+Closest projects identified:
+1. **`evidence-claim-escrow`** ([https://github.com/genlayer-community/evidence-claim-escrow](https://github.com/genlayer-community/evidence-claim-escrow)):
+   - An escrow contract on GenLayer that verifies claim statements against web page content before releasing funds.
+   - **Differences**: Uses raw LLM judgment to resolve claim-condition booleans without mandatory verbatim substring grounding or deterministic length/quote downgrade rules.
+2. **`canon`** ([https://github.com/genlayer-community/canon](https://github.com/genlayer-community/canon)):
+   - A living registry contract on GenLayer recording factual updates and dispute resolutions based on validator consensus.
+   - **Differences**: Registry-focused; handles revision histories rather than granular claim-to-URL citation verification with deterministic keyword-density windowing.
 
 ---
 
-## 3. Comparison Matrix: Citation Court vs. Closest Prior Art
+## 3. Honest Comparison Matrix: What Is New vs. What Is Not
 
-| Dimension | CiteCheck / RefLens (Academic) | Naive GenLayer Fact Oracle | Citation Court (This Project) |
+| Dimension | Academic Systems (RefLens / CiteCheck) | `evidence-claim-escrow` (GenLayer Community) | Citation Court (This Project) |
 | :--- | :--- | :--- | :--- |
-| **Execution Environment** | Centralized server / local script | GenLayer GenVM (Python) | GenLayer GenVM (Python) |
-| **Autonomous Web Retrieval** | Centralized Python crawler / APIs | `gl.nondet.web.get(url)` | `gl.nondet.web.get(url)` with structured URL validation |
-| **Consensus Mechanism** | None (single process) | Equivalence principle on raw verdict | `gl.eq_principle.strict_eq` on a single canonical enum |
-| **Grounding Requirement** | Soft score or LLM self-report | None (trusts LLM output directly) | **Mandatory verbatim substring grounding (`ground()` rule)** |
-| **Handling Fabricated Quotes** | Flags score in centralized report | Accepts verdict (vulnerable to hallucination) | **Deterministic downgrade to `NOT_ADDRESSED`** |
-| **Prompt Injection Defense** | System prompts only | System prompts only | Structured delimiters + verbatim page quote grounding |
-| **Deterministic Windowing** | Centralized chunking | Truncation or single window | Keyword-density windowing for long pages (>8000 chars) |
-| **On-Chain Composability** | None | Limited | Yes: cross-contract view queries for dependent dApps |
+| **Execution Environment** | Centralized server / local Python script | GenLayer GenVM (Python) | GenLayer GenVM (Python) *(Not new)* |
+| **Autonomous Web Retrieval** | Centralized crawler / database APIs | `gl.nondet.web.get(url)` | `gl.nondet.web.get(url)` with structured URL validation |
+| **Consensus Mechanism** | None (single process) | Equivalence principle on raw boolean | `gl.eq_principle.strict_eq` on a single canonical enum *(Not new)* |
+| **Verbatim Quote Extraction** | Yes (RefLens extracts verbatim spans) | No (evaluates overall text) | Yes: LLM extracts candidate quote *(Not new conceptually)* |
+| **Deterministic Code Downgrade Gate** | No (generates UI alerts or soft scores) | No | **Yes (`_ground()` code gate mechanically forces `NOT_ADDRESSED` on missing quote)** *(New on-chain)* |
+| **Deterministic Keyword Windowing** | Standard chunking / embeddings | Direct truncation | **Deterministic keyword-density windowing maintaining original doc order** |
+| **On-Chain Composability** | None | Escrow logic | Cross-contract synchronous view interface for external dApps |
 
----
+### What Is NOT New:
+- Verbatim quote extraction itself is not new: off-chain academic tools (like RefLens) already extract text spans for human review.
+- Web retrieval and LLM evaluation on GenLayer are platform features, not invented by this contract.
 
-## 4. The Distinct Architectural Contribution
-The defining difference of Citation Court is the **verbatim grounding downgrade rule**:
-Validators do not merely ask an LLM if the text supports the claim. The LLM must supply an exact passage (`quote`) from the fetched page. Before any validator yields `SUPPORTS` or `CONTRADICTS` to consensus, a pure, deterministic function (`ground()`) verifies that:
-1. The quote is at least 25 characters long.
-2. The normalized quote is an exact substring of the normalized full page text.
-
-If an LLM hallucinates an affirmative verdict and manufactures a plausible-sounding quote that does not literally exist on the source page, the deterministic code forces the verdict to `NOT_ADDRESSED`. Thus, consensus validators never rely on unverified model claims, and naive hallucinations cannot compromise on-chain truth.
+### What IS Novel in Citation Court:
+The **deterministic on-chain downgrade rule (`_ground`)**: Rather than relying on an LLM to evaluate its own grounding or storing free-form quotes on-chain, deterministic code acts as an unyielding filter. If an LLM hallucinates `SUPPORTS` or `CONTRADICTS` with an invented passage or a passage $<25$ characters, the contract code deterministically downgrades the verdict to `NOT_ADDRESSED`. Independent validators converge on the single canonical enum while eliminating quote text from the consensus string.

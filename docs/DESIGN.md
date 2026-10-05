@@ -42,6 +42,9 @@ def _ground(verdict: str, quote: str, clean_page_text: str) -> str:
 3. `Normalization`: Both quote and page text undergo typographic mapping (curly single/double quotes and en/em dashes converted to ASCII), case folding to lowercase, and whitespace collapsing. Outer quotation marks are trimmed.
 4. `Conservative Downgrade`: If a model claims `SUPPORTS` or `CONTRADICTS` but manufactures a quote not found on the page, the decision is mechanically downgraded to `NOT_ADDRESSED`.
 
+> [!WARNING]
+> **Grounding Boundary & Limitation**: Grounding verifies that the quote literally exists within the fetched page text; it does NOT prove the source text is reliable, truthful, or free of malicious injections. If an adversarial page deliberately embeds a fake assertion ("Claim X is fully confirmed") and the model quotes that passage verbatim, grounding will succeed because the passage is literally present. Defense against prompt injection relies strictly on framing untrusted data inside structured delimiters and LLM instruction-following.
+
 ---
 
 ## 3. Long Page Windowing Strategy (`_extract_windows`)

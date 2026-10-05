@@ -24,7 +24,7 @@ BANNED_PATTERNS = [
 ]
 
 IGNORE_DIRS = {'.git', 'node_modules', 'dist', '__pycache__', '.vercel'}
-ALLOWED_FILES = {'scan_banned_words.py'}
+ALLOWED_FILES = {'scan_banned_words.py', 'tx_raw.json'}
 
 def scan():
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

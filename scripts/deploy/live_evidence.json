@@ -129,6 +129,24 @@
       "latency_sec": 9.423,
       "rejudge_tx": null,
       "rejudge_ruling": null
+    },
+    {
+      "case_name": "case_wiki_earth",
+      "description": "Fixed Wikipedia article (https://en.wikipedia.org/wiki/Earth) verified SUPPORTS via keyword windowing",
+      "claim_id": "8",
+      "claim_text": "Earth is the third planet from the Sun and the only astronomical object known to harbor life.",
+      "url": "https://en.wikipedia.org/wiki/Earth",
+      "lodge_tx": "0x5079397ca576761237edaac4b155b507c81802fa84b9e8da09f3b4bc094f5a9b",
+      "lodge_status": "ACCEPTED",
+      "judge_tx": "0xdb555c3638b551b6aeef67a88b2f58063881995af5ba449d2c8e4c6d4c261ecf",
+      "judge_status": "ACCEPTED",
+      "judge_result": "MAJORITY_AGREE",
+      "expected_verdict": "SUPPORTS",
+      "recorded_verdict": "SUPPORTS",
+      "attempts": 1,
+      "latency_sec": 15.33,
+      "rejudge_tx": null,
+      "rejudge_ruling": null
     }
   ],
   "finalStats": {
