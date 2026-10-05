@@ -40,7 +40,7 @@ def _ground(verdict: str, quote: str, clean_page_text: str) -> str:
 1. `MIN_QUOTE_LEN = 25`: Any quote shorter than 25 normalized characters is considered insufficient evidence and downgraded to `NOT_ADDRESSED`.
 2. `Substring Containment`: The normalized quote must literally exist as a contiguous substring of the normalized full page text.
 3. `Normalization`: Both quote and page text undergo typographic mapping (curly single/double quotes and en/em dashes converted to ASCII), case folding to lowercase, and whitespace collapsing. Outer quotation marks are trimmed.
-4. `Conservative Downgrade`: If a model claims `SUPPORTS` or `CONTRADICTS` but manufactures a quote not found on the page, the decision is mechanically downgraded to `NOT_ADDRESSED`.
+4. `Conservative Downgrade`: If a model claims `SUPPORTS` or `CONTRADICTS` but manufactures a quote not found on the page, the decision is deterministically downgraded to `NOT_ADDRESSED`.
 
 > [!WARNING]
 > **Grounding Boundary & Limitation**: Grounding verifies that the quote literally exists within the fetched page text; it does NOT prove the source text is reliable, truthful, or free of malicious injections. If an adversarial page deliberately embeds a fake assertion ("Claim X is fully confirmed") and the model quotes that passage verbatim, grounding will succeed because the passage is literally present. Defense against prompt injection relies strictly on framing untrusted data inside structured delimiters and LLM instruction-following.
@@ -52,8 +52,8 @@ Web pages can exceed the context window or token budget of validator LLMs. Trunc
 
 Citation Court implements **deterministic keyword-density windowing**:
 1. If the cleaned page text exceeds `MAX_CLEAN_TEXT_LEN` (8000 characters), it is split into ~400-character windows (`WINDOW_SIZE = 400`).
-2. Distinct keywords of length $\ge 4$ are extracted from the claim.
-3. Each window is scored based on the count of distinct claim keywords it contains.
+2. Deduplicated keywords of length $\ge 4$ are extracted from the claim.
+3. Each window is scored based on the count of deduplicated claim keywords it contains.
 4. Top-scoring windows are accumulated up to `MAX_WINDOWS_TOTAL_LEN` (6000 characters).
 5. Crucially, the selected windows are sorted back into their **original document order** before being joined with ` ... `.
 6. Grounding is always verified against the **full cleaned page text**, ensuring that even if an excerpt spans a boundary, the source document confirms it.
@@ -66,7 +66,7 @@ To prevent server-side request forgery (SSRF) and validator denial-of-service, a
 - Hostname must be present and cannot be `localhost`.
 - Userinfo (`user:pass@host`) is strictly disallowed to prevent credential-spoofing phishing attacks.
 - Port must be omitted or explicitly `443`.
-- Hostnames matching IPv4/IPv6 literals are inspected: loopback, private RFC1918, link-local, reserved, and unspecified IP ranges are rejected with distinct `UserError` messages.
+- Hostnames matching IPv4/IPv6 literals are inspected: loopback, private RFC1918, link-local, reserved, and unspecified IP ranges are rejected with specific `UserError` messages.
 - Embedded whitespace is prohibited.
 
 ---
