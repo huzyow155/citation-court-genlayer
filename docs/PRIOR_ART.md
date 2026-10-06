@@ -17,8 +17,8 @@ Existing off-chain tools and smart contract paradigms address portions of this v
 5. `"CiteCheck" OR "RefLens" OR "GhostCite" arxiv citation hallucination`
 
 ### Verification of Candidate Links (HTTP Status & Titles):
-- **`https://github.com/genlayerlabs/genlayer-project-boilerplate`**: HTTP 200 (Title: *GitHub - genlayerlabs/genlayer-project-boilerplate · GitHub*).
-- **`https://docs.genlayer.com`**: HTTP 200 (Title: *GenLayer – The Adjudication Layer for the Agentic Economy*).
+- **`https://github.com/genlayerlabs/genlayer-project-boilerplate`**: HTTP 200 (Title: *GitHub - genlayerlabs/genlayer-project-boilerplate - GitHub*).
+- **`https://docs.genlayer.com`**: HTTP 200 (Title: *GenLayer - The Adjudication Layer for the Agentic Economy*).
 - **`https://arxiv.org/abs/2605.27700`**: HTTP 200 (Title: *[2605.27700] CiteCheck: Retrieval-Grounded Detection of LLM Citation Hallucinations in Scientific Text*).
 - **`https://arxiv.org/abs/2602.06718`**: HTTP 200 (Title: *[2602.06718] GhostCite: A Large-Scale Analysis of Citation Validity in the Age of Large Language Models*).
 
@@ -31,11 +31,11 @@ Existing off-chain tools and smart contract paradigms address portions of this v
    - **What it does (from abstract)**: It is a framework that *"verifies whether a citation corresponds to a real scholarly work"* and whether its metadata is faithful. It retrieves candidate publications from external scholarly sources and compares the citation against candidates using a structured LLM verifier.
    - **How it differs from Citation Court**:
      - *Scope*: CiteCheck evaluates scientific citation existence and metadata fidelity against scholarly sources; Citation Court evaluates whether an arbitrary web page text substantively supports a specific claim.
-     - *Execution*: CiteCheck là khung kiểm tra ngoài chuỗi kết hợp truy xuất học thuật, kiểm chứng LLM có cấu trúc và luật quyết định đã hiệu chỉnh (off-chain evaluation framework combining scholarly retrieval, structured LLM verification, and calibrated decision rules); Citation Court is an on-chain contract running in GenVM validators with state consensus.
+     - *Execution*: CiteCheck is an off-chain evaluation framework combining scholarly retrieval, structured LLM verification, and calibrated decision rules; Citation Court is an on-chain contract running in GenVM validators with state consensus.
      - *Decision rule*: CiteCheck uses calibrated decision rules on verifier scores; Citation Court uses a deterministic code check that downgrades ungrounded verdicts to `NOT_ADDRESSED`.
 
 2. **GhostCite: Large-Scale Analysis of Citation Validity (arXiv:2602.06718)**:
-   - **What it does (from abstract)**: An *"open-source framework for large-scale citation verification"* that conducts a study of citation validity in the LLM era across 13 LLMs and papers from 2020–2025.
+   - **What it does (from abstract)**: An *"open-source framework for large-scale citation verification"* that conducts a study of citation validity in the LLM era across 13 LLMs and papers from 2020-2025.
    - **How it differs from Citation Court**: GhostCite is an empirical measurement study benchmarking models and analyzing paper citations; Citation Court is an on-chain adjudication contract designed to resolve individual claim citations.
 
 ### B. GenLayer Ecosystem Prior Art
@@ -64,4 +64,4 @@ In the repositories surfaced by the 5 queries above, we read one contract (`foot
 
 ### What We Found No Precedent For (in the repositories surfaced by the 5 queries above; we read one contract (football_bets.py) in full):
 We found no smart contract implementing an automated normalized grounding gatekeeper (`_ground`):
-Rather than trusting the model's reported verdict, contract code enforces that the candidate quote is at least 25 characters long and appears contiguously in the source text after normalization of case, whitespace, and typographic punctuation (một đoạn xuất hiện liên tục trong văn bản trang sau khi chuẩn hoá chữ hoa/thường, khoảng trắng và dấu câu kiểu in). If a model claims an affirmative verdict with a fabricated quote, the code deterministically downgrades the verdict to `NOT_ADDRESSED`. Independent validators compare this single canonical enum, preventing quote discrepancies from fracturing consensus.
+Rather than trusting the model's reported verdict, contract code enforces that the candidate quote is at least 25 characters long and appears contiguously in the source text after normalization of case, whitespace, and typographic punctuation. If a model claims an affirmative verdict with a fabricated quote, the code deterministically downgrades the verdict to `NOT_ADDRESSED`. Independent validators compare this single canonical enum, preventing quote discrepancies from fracturing consensus.

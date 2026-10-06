@@ -39,12 +39,12 @@
    - Run (d) Near Miss: `12.06s`
    - Run (e) Prompt Injection: `15.40s`
    - Run (h) Wikipedia Fixed Article: `15.33s`
-   - **Mean**: **14.79s** (Range: 12.06s – 15.52s).
+   - **Mean**: **14.79s** (Range: 12.06s - 15.52s).
 2. **Fast UNREADABLE Path (Runs f1, f2, g)**:
    - Run (f) 404 Unreadable Attempt 1: `12.08s`
    - Run (f) 404 Unreadable Attempt 2 (re-judge): `8.85s`
    - Run (g) Short Page (<200 chars): `9.42s`
-   - **Mean**: **10.12s** (Range: 8.85s – 12.08s).
+   - **Mean**: **10.12s** (Range: 8.85s - 12.08s).
 
 ---
 

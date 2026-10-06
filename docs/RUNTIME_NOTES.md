@@ -48,7 +48,7 @@ from genlayer import *
 ## 4. LLM Prompt Execution (`gl.nondet.exec_prompt`)
 - `gl.nondet.exec_prompt(prompt)` returns a string (type `str`).
 - Validators run independent LLM backends (e.g. Grok-4.3, GPT-5.4, Gemini-3-Flash, GLM-5.1, MiniMax-M3).
-- To guarantee strict equality across diverse model engines, deterministic Python post-processing must convert the model's small output into a canonical decision before passing it to `gl.eq_principle.strict_eq`.
+- To achieve strict equality across diverse model engines, deterministic Python post-processing must convert the model's small output into a canonical decision before passing it to `gl.eq_principle.strict_eq`.
 
 ---
 

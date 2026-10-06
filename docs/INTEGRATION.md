@@ -21,11 +21,11 @@ A write transaction is successful on GenLayer Studionet if and only if:
 When designing client waiting states, loaders, or polling routines, configure timeouts based on verified Studionet execution intervals:
 - **Measurement Method**: Synchronous client-side wall-clock delta `(Date.now() - t0) / 1000` measured from transaction submission (`client.writeContract`) until transaction receipt confirmation (`client.waitForTransactionReceipt`).
 - **Full LLM Consensus Judgments (Runs A, B, C, D, E, H)**:
-  - 6 executions, mean latency **14.79s** (range: **12.06s – 15.52s**).
-  - Recommended UI pending state budget: 15–25 seconds.
+  - 6 executions, mean latency **14.79s** (range: **12.06s - 15.52s**).
+  - Recommended UI pending state budget: 15-25 seconds.
 - **Fast UNREADABLE Path (Runs F1, F2, G)**:
-  - 3 executions, mean latency **10.12s** (range: **8.85s – 12.08s**).
-  - Recommended UI pending state budget: 10–15 seconds.
+  - 3 executions, mean latency **10.12s** (range: **8.85s - 12.08s**).
+  - Recommended UI pending state budget: 10-15 seconds.
 - **Receipt Success Requirement**: A transaction is successful only when `receipt.status_name === "ACCEPTED"`, `receipt.result_name === "MAJORITY_AGREE"`, and leader receipt has `execution_result === "SUCCESS"`.
 
 ---

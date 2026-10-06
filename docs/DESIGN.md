@@ -62,12 +62,12 @@ def _ground(verdict: str, quote: str, clean_page_text: str) -> str:
 5. **Whitespace Collapsing**: Splits by whitespace tokens and rejoins with a single space (`" ".join(s.lower().split())`), collapsing spaces, tabs, and newlines.
 6. **Outer Quotation Trimming**: Removes surrounding single and double quotation marks from the candidate quote via `.strip("\"'")`.
 7. **Minimum Length Threshold**: `MIN_QUOTE_LEN = 25`. Any normalized quote under 25 characters is considered insufficient evidence and downgraded to `NOT_ADDRESSED`.
-8. **Normalized Substring Containment**: Enforces `norm_quote in norm_page` (một đoạn xuất hiện liên tục trong văn bản trang sau khi chuẩn hoá chữ hoa/thường, khoảng trắng và dấu câu kiểu in).
+8. **Normalized Substring Containment**: Enforces `norm_quote in norm_page` (a passage appearing contiguously in the page text after normalization of case, whitespace, and typographic punctuation).
 
 *(Note on contract source comments/prompts: Comments and system prompts inside `contracts/CitationCourt.py` instruct the LLM to supply a "verbatim quote" to deter generative rewriting, but the contract verification code executes the normalized containment check documented above).*
 
 > [!WARNING]
-> **Grounding Boundary & Limitation**: Grounding verifies that a passage appears contiguously in the page text after normalization of case, whitespace, and typographic punctuation; it does NOT prove the source text is reliable, truthful, or free of malicious injections. If an adversarial page deliberately embeds a fake assertion ("Claim X is fully confirmed") and the model quotes that passage, grounding will succeed because the passage is present on the page. Defense against prompt injection relies strictly on framing untrusted data inside structured delimiters and LLM instruction-following.
+> **Grounding Boundary & Limitation**: Grounding verifies that a passage appears contiguously in the page text after normalization of case, whitespace, and typographic punctuation; it does NOT prove the source text is reliable, truthful, free of malicious injections, or semantically relevant to the claim. If an adversarial page deliberately embeds a fake assertion ("Claim X is fully confirmed") and the model quotes that passage, grounding will succeed because the passage is present on the page. Defense against prompt injection relies strictly on framing untrusted data inside structured delimiters and LLM instruction-following.
 
 ---
 

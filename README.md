@@ -71,13 +71,13 @@ The transactions naturally split into two operational groups:
 1. **Full LLM Consensus Judgments (A, B, C, D, E, H)**:
    - Evaluates full page text and executes multi-validator LLM prompt reasoning.
    - Raw values: `[15.12, 15.52, 15.32, 12.06, 15.40, 15.33]` seconds.
-   - **Mean**: **14.79s** (Range: 12.06s – 15.52s).
+   - **Mean**: **14.79s** (Range: 12.06s - 15.52s).
 2. **Fast UNREADABLE Path (F attempt 1, F re-judge, G)**:
    - Bypasses LLM prompt execution immediately upon HTTP error or page length < 200 chars.
    - Case F (404 attempt 1): `12.08s`
    - Case F (404 re-judge): `8.85s`
    - Case G (Short page < 200 chars): `9.42s`
-   - **Mean**: **10.12s** (Range: 8.85s – 12.08s).
+   - **Mean**: **10.12s** (Range: 8.85s - 12.08s).
 
 ---
 
@@ -93,7 +93,7 @@ python -m unittest discover tests -v
 ---
 
 ## Known Limitations
-1. **Grounding Limitation & Adversarial Text:** The grounding check proves that a passage appears contiguously in the source text after normalization of case, whitespace, and typographic punctuation; it does NOT prove the source text is reliable, truthful, or free of adversarial injections. If an adversarial page contains an injected assertion and the model quotes that passage, grounding will succeed. Defending against prompt injection relies strictly on framing untrusted data inside structured delimiters and LLM instruction-following.
+1. **Grounding Limitation & Adversarial Text:** The grounding check verifies that a passage appears contiguously in the source text after normalization of case, whitespace, and typographic punctuation; it does NOT verify whether the source text is reliable, truthful, free of adversarial injections, or semantically related to the claim. If an adversarial page contains an injected assertion and the model quotes that passage, grounding will succeed. Defending against prompt injection relies strictly on framing untrusted data inside structured delimiters and LLM instruction-following.
 2. **Client-Side Rendered Web Pages:** Pages relying exclusively on client-side JavaScript execution (SPAs) will yield raw script/template markup or minimal text (<200 chars), resulting in `UNREADABLE`.
 3. **Volatile Web Content:** If a target URL changes between validator execution windows, validators may fetch divergent text, leading to `MAJORITY_DISAGREE`.
 4. **Paywalled / Bot-Protected Content:** Sites enforcing Cloudflare CAPTCHAs, CloudFront blocks, or subscription paywalls will return HTTP 403/401 and resolve as `UNREADABLE`.

@@ -152,7 +152,17 @@ async function main() {
   }
 
   let md = "# Address & Transaction Hash Registry: Citation Court\n\n";
-  md += "This document registers and classifies all 20-byte `0x` addresses and 32-byte `0x` transaction hashes appearing across `README.md`, `docs/`, and `scripts/deploy/`.\n\n";
+  md += "This document registers and classifies all 27 20-byte `0x` addresses and 49 32-byte `0x` transaction hashes appearing across `README.md`, `docs/`, and `scripts/deploy/`.\n\n";
+  md += "> **Provenance of Studionet Validator Node Addresses:**\n";
+  md += "> Addresses labeled as \"Studionet Validator Node / Consensus Operator\" are inferred from transaction receipt fields in raw JSON outputs (`scripts/deploy/*_output.json`, `docs/RECEIPTS.md`), specifically:\n";
+  md += "> - `consensus_data.votes.<address>`: Validator voting records and quorum signatures.\n";
+  md += "> - `consensus_data.validators[].node_config.address`: Validator node configuration address.\n";
+  md += "> - `consensus_data.validators[].node_config.fallback_validator`: Backup validator node address.\n";
+  md += "> - `consensus_data.validators[].node_config.secondary_model.address`: Auxiliary validator address.\n";
+  md += "> - `activator` & `last_leader`: Round leader node address.\n";
+  md += ">\n";
+  md += "> **RPC Classification Method:**\n";
+  md += "> For each validator address, GenLayer RPC method `client.getContractCode(addr)` (`gen_getContractCode`) was queried. The RPC returned `\"Contract <address> not found\"` (empty bytecode `0x`), concluding that these are EOA / unregistered accounts operating as validator nodes rather than deployed smart contracts.\n\n";
   
   md += "## 1. Registered Addresses (20-byte hex)\n\n";
   md += "| Address | Role / Entity | Type (RPC Verification) | Appeared In |\n";

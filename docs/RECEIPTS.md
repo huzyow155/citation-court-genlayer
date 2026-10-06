@@ -2,6 +2,13 @@
 
 This document verifies the three-part transaction receipt criteria across all primary write transactions on GenLayer Studionet.
 
+### Raw JSON Receipt Output Files on Disk:
+- **CitationCourt Deploy & Case A**: `scripts/deploy/core_output.json` and raw RPC response `scripts/tx_raw.json`
+- **CitedBoard Deploy & Post**: `scripts/deploy/consumer_output.json`
+- **Cases B through G & Re-judge**: `scripts/deploy/live_evidence.json`
+- **Case H (Wikipedia)**: `scripts/deploy/live_evidence.json` (lines 134-149)
+- **Runtime Probe**: `scripts/deploy/probe_output.json`
+
 ### Receipt Success Rule (All 3 Conditions Required):
 1. `status_name === "ACCEPTED"`
 2. `result_name === "MAJORITY_AGREE"`
