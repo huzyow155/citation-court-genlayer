@@ -69,8 +69,8 @@ async function main() {
     "0x88e9a06a57ebb9D7Bf3A7137e14D268EB6dd916D": "Probe Deployer EOA (Generated in deploy_probe.js; used as sender in probe & mocked tests)",
     "0xFa735A5DE1F29811DA9b235775D078d45E1643D3": "Consumer Deployer & Author EOA (Generated in deploy_consumer.js; deployed CitedBoard, author of article 1)",
     "0xd6165e3F6Ce52445e9F4E46cfdD5ea6C1cb01e6A": "Evidence Runner EOA (Generated in run_live_evidence.js for test execution)",
-    "0x138eae5591141315570081C43e94471B6F650D7D": "Evidence Runner EOA (Generated in run_live_evidence.js; lodged/judged Cases B-G)",
-    "0xc669923fd27725ca7892b95079a2936277d337d1": "Wikipedia Case H Runner EOA (Generated during Case H run; lodged/judged Claim 8)",
+    "0x138eae55425d2192612da913b20CfAEe396F7bB6": "Evidence Runner EOA (Generated in run_live_evidence.js; lodged/judged Cases B-G)",
+    "0xc669923f824c00B3210c00627434127673D7A056": "Wikipedia Case H Runner EOA (Generated during Case H run; lodged/judged Claim 8)",
   };
 
   const addressDefaultRole = "Studionet Validator Node / Consensus Operator (appears in validator votes & config in raw receipts)";

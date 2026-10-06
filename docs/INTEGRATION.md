@@ -10,9 +10,11 @@
 ---
 
 ## 2. Receipt Semantics & Success Rules
-A write transaction is successful on GenLayer Studionet if and only if:
-1. `receipt.status_name === "ACCEPTED"`
-2. `receipt.result_name === "MAJORITY_AGREE"` (or `consensus_data.leader_receipt[0].execution_result === "SUCCESS"`)
+A write transaction is accepted by validators on GenLayer Studionet if and only if:
+1. `receipt.status_name === "ACCEPTED"` or `receipt.status_name === "FINALIZED"`
+2. `receipt.result_name === "MAJORITY_AGREE"`
+3. `receipt.consensus_data.leader_receipt[0].execution_result === "SUCCESS"`
+4. State is verified by reading back via contract view methods.
 
 > [!NOTE]
 > Write calls do not return execution payloads in the transaction receipt. Applications must read contract state back using view calls once the transaction receipt is confirmed.
@@ -26,7 +28,7 @@ When designing client waiting states, loaders, or polling routines, configure ti
 - **Fast UNREADABLE Path (Runs F1, F2, G)**:
   - 3 executions, mean latency **10.12s** (range: **8.85s - 12.08s**).
   - Recommended UI pending state budget: 10-15 seconds.
-- **Receipt Success Requirement**: A transaction is successful only when `receipt.status_name === "ACCEPTED"`, `receipt.result_name === "MAJORITY_AGREE"`, and leader receipt has `execution_result === "SUCCESS"`.
+- **Receipt Success Requirement**: A transaction is accepted by validators only when `receipt.status_name === "ACCEPTED"` or `receipt.status_name === "FINALIZED"`, `receipt.result_name === "MAJORITY_AGREE"`, and leader receipt has `execution_result === "SUCCESS"`; callers should then read back state via view methods (`get_ruling`, `get_stats`).
 
 ---
 
