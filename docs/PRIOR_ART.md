@@ -31,7 +31,7 @@ Existing off-chain tools and smart contract paradigms address portions of this v
    - **What it does (from abstract)**: It is a framework that *"verifies whether a citation corresponds to a real scholarly work"* and whether its metadata is faithful. It retrieves candidate publications from external scholarly sources and compares the citation against candidates using a structured LLM verifier.
    - **How it differs from Citation Court**:
      - *Scope*: CiteCheck evaluates scientific citation existence and metadata fidelity against scholarly sources; Citation Court evaluates whether an arbitrary web page text substantively supports a specific claim.
-     - *Execution*: CiteCheck is an off-chain Python/API evaluation framework; Citation Court is an on-chain contract running in GenVM validators with state consensus.
+     - *Execution*: CiteCheck là khung kiểm tra ngoài chuỗi kết hợp truy xuất học thuật, kiểm chứng LLM có cấu trúc và luật quyết định đã hiệu chỉnh (off-chain evaluation framework combining scholarly retrieval, structured LLM verification, and calibrated decision rules); Citation Court is an on-chain contract running in GenVM validators with state consensus.
      - *Decision rule*: CiteCheck uses calibrated decision rules on verifier scores; Citation Court uses a deterministic code check that downgrades ungrounded verdicts to `NOT_ADDRESSED`.
 
 2. **GhostCite: Large-Scale Analysis of Citation Validity (arXiv:2602.06718)**:
@@ -41,7 +41,7 @@ Existing off-chain tools and smart contract paradigms address portions of this v
 ### B. GenLayer Ecosystem Prior Art
 In the repositories surfaced by the 5 queries above, we read one contract (`football_bets.py` in `genlayerlabs/genlayer-project-boilerplate`) in full:
 - The contract fetches web URLs via `gl.nondet.web.get(resolution_url)` and resolves bets by prompting an LLM to extract game winners and scores.
-- **Comparison**: It relies directly on the LLM's returned decision fields without requiring verbatim quote containment, substring validation, or length-gated downgrade.
+- **Comparison**: It relies directly on the LLM's returned decision fields without requiring normalized quote containment, substring validation, or length-gated downgrade.
 
 ---
 
@@ -49,11 +49,11 @@ In the repositories surfaced by the 5 queries above, we read one contract (`foot
 
 | Dimension | CiteCheck (arXiv:2605.27700) | GhostCite (arXiv:2602.06718) | Official GenLayer Boilerplate (`football_bets.py`) | Citation Court (This Project) |
 | :--- | :--- | :--- | :--- | :--- |
-| **Execution Environment** | Centralized script / API | Centralized benchmark | GenLayer GenVM (Python) | GenLayer GenVM (Python) *(Not new)* |
+| **Execution Environment** | off-chain (per abstract) | off-chain (per abstract) | GenLayer GenVM (Python) | GenLayer GenVM (Python) *(Not new)* |
 | **Autonomous Web Retrieval** | Scholarly retrieval | Offline corpus | `gl.nondet.web.get(url)` | `gl.nondet.web.get(url)` with structured URL validation |
 | **Consensus Mechanism** | None | None | Equivalence principle on raw data | `gl.eq_principle.strict_eq` on a single canonical enum *(Not new)* |
 | **Core Verification Focus** | Paper existence & metadata accuracy | Empirical measurement of hallucination rate | Extracting winner/score from web | Semantic claim-to-text substantiation |
-| **Verbatim Quote Substring Check** | not stated in abstract | not stated in abstract | No | **Mandatory substring check (`_ground()`)** |
+| **Normalized quote-containment check** | not stated in abstract | not stated in abstract | No | **Mandatory normalized containment check (`_ground()`)** |
 | **Deterministic Downgrade Gate** | Calibrated decision rules | Benchmark metric | No | **Code deterministically sets `NOT_ADDRESSED` on missing quote** |
 | **Deterministic Long-Page Windowing** | N/A | N/A | None / direct truncation | **Deterministic keyword-density windowing preserving document order** |
 | **On-Chain Composability** | None | None | Bet payout | Synchronous cross-contract view queries for dependent dApps |
@@ -63,5 +63,5 @@ In the repositories surfaced by the 5 queries above, we read one contract (`foot
 - Consensus via `gl.eq_principle.strict_eq` is standard GenLayer architecture.
 
 ### What We Found No Precedent For (in the repositories surfaced by the 5 queries above; we read one contract (football_bets.py) in full):
-We found no smart contract implementing an automated verbatim grounding gatekeeper (`_ground`):
-Rather than trusting the model's reported verdict, contract code enforces that the candidate quote is at least 25 characters long and is a verbatim substring of the cleaned source text. If a model claims an affirmative verdict with a fabricated quote, the code deterministically downgrades the verdict to `NOT_ADDRESSED`. Independent validators compare this single canonical enum, preventing quote discrepancies from fracturing consensus.
+We found no smart contract implementing an automated normalized grounding gatekeeper (`_ground`):
+Rather than trusting the model's reported verdict, contract code enforces that the candidate quote is at least 25 characters long and appears contiguously in the source text after normalization of case, whitespace, and typographic punctuation (một đoạn xuất hiện liên tục trong văn bản trang sau khi chuẩn hoá chữ hoa/thường, khoảng trắng và dấu câu kiểu in). If a model claims an affirmative verdict with a fabricated quote, the code deterministically downgrades the verdict to `NOT_ADDRESSED`. Independent validators compare this single canonical enum, preventing quote discrepancies from fracturing consensus.

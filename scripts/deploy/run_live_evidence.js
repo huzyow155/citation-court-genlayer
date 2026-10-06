@@ -31,7 +31,7 @@ async function main() {
   // Case (a): SUPPORTS already verified in core deploy (Claim 1)
   evidenceRecords.push({
     case_name: "case_a_supports",
-    description: "Clearly supported claim against supports.md with verified verbatim quote",
+    description: "Clearly supported claim against supports.md with verified normalized quote",
     claim_id: "1",
     claim_text: "Project Nova quarterly revenue reached $14.2 million representing an increase of 42 percent.",
     url: SUPPORTS_URL,

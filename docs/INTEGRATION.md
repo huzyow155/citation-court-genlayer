@@ -17,6 +17,17 @@ A write transaction is successful on GenLayer Studionet if and only if:
 > [!NOTE]
 > Write calls do not return execution payloads in the transaction receipt. Applications must read contract state back using view calls once the transaction receipt is confirmed.
 
+### Measured Latency (for Frontend Waiting States)
+When designing client waiting states, loaders, or polling routines, configure timeouts based on verified Studionet execution intervals:
+- **Measurement Method**: Synchronous client-side wall-clock delta `(Date.now() - t0) / 1000` measured from transaction submission (`client.writeContract`) until transaction receipt confirmation (`client.waitForTransactionReceipt`).
+- **Full LLM Consensus Judgments (Runs A, B, C, D, E, H)**:
+  - 6 executions, mean latency **14.79s** (range: **12.06s – 15.52s**).
+  - Recommended UI pending state budget: 15–25 seconds.
+- **Fast UNREADABLE Path (Runs F1, F2, G)**:
+  - 3 executions, mean latency **10.12s** (range: **8.85s – 12.08s**).
+  - Recommended UI pending state budget: 10–15 seconds.
+- **Receipt Success Requirement**: A transaction is successful only when `receipt.status_name === "ACCEPTED"`, `receipt.result_name === "MAJORITY_AGREE"`, and leader receipt has `execution_result === "SUCCESS"`.
+
 ---
 
 ## 3. Public Write Methods
@@ -71,7 +82,7 @@ Returns the consensus ruling record or empty string if unjudged.
 ### `list_recent(limit: int = 10) -> str`
 Returns a JSON list of recent claim IDs (capped at 20, newest first).
 ```json
-["7", "6", "5", "4", "3", "2", "1"]
+["8", "7", "6", "5", "4", "3", "2", "1"]
 ```
 
 ### `list_by_author(author: str, limit: int = 10) -> str`
@@ -85,13 +96,20 @@ Returns the most recent claim ID for the given address, or empty string.
 
 ### `get_stats() -> str`
 Returns aggregate platform statistics.
+> **Counting Definition**:
+> - `total_claims`: incremented when a new claim is lodged (`lodge_claim`).
+> - `total_judgments` and verdict counters (`supports`, `contradicts`, `not_addressed`, `unreadable`): incremented on every judgment execution (`judge_claim`).
+> - If an unreadable claim is re-judged (e.g., Case F), both `total_judgments` and `unreadable` increment again.
+> - Invariant: `total_judgments == supports + contradicts + not_addressed + unreadable` holds at all times.
+
+Sample on-chain read-back (`capturedAt: 2026-10-06T03:39:53.585Z`):
 ```json
 {
   "contradicts": 2,
   "not_addressed": 2,
-  "supports": 1,
-  "total_claims": 7,
-  "total_judgments": 8,
+  "supports": 2,
+  "total_claims": 8,
+  "total_judgments": 9,
   "unreadable": 3
 }
 ```

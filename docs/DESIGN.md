@@ -16,11 +16,29 @@ Every supporting passage or intermediate text extracted by an LLM is evaluated i
 
 ---
 
-## 2. Verbatim Grounding Rule (`_ground`)
-To prevent hallucinated citations and phantom references, Citation Court implements a strict deterministic gatekeeper:
+## 2. Normalized Grounding Rule (`_ground`)
+To prevent hallucinated citations and phantom references, Citation Court implements a deterministic gatekeeper.
+
+### What Grounding Actually Checks
+
+Rather than an unnormalized literal byte match, grounding checks whether the candidate passage appears as a contiguous sequence in the page text **after normalization of case, whitespace, and typographic punctuation**.
 
 ```python
+def _normalize_text(text: str) -> str:
+    """Normalize string: lowercase, collapse whitespace, map typographic quotes/dashes to ASCII."""
+    if not text:
+        return ""
+    # Map typographic quotes and dashes
+    s = str(text)
+    s = s.replace("\u2018", "'").replace("\u2019", "'")
+    s = s.replace("\u201c", '"').replace("\u201d", '"')
+    s = s.replace("\u2013", "-").replace("\u2014", "-")
+    # Lowercase and collapse whitespace
+    return " ".join(s.lower().split())
+
+
 def _ground(verdict: str, quote: str, clean_page_text: str) -> str:
+    """Verbatim grounding check. Downgrades ungrounded verdicts to NOT_ADDRESSED."""
     if verdict not in (VERDICT_SUPPORTS, VERDICT_CONTRADICTS):
         return verdict
 
@@ -36,14 +54,20 @@ def _ground(verdict: str, quote: str, clean_page_text: str) -> str:
     return verdict
 ```
 
-### Parameters and Constants:
-1. `MIN_QUOTE_LEN = 25`: Any quote shorter than 25 normalized characters is considered insufficient evidence and downgraded to `NOT_ADDRESSED`.
-2. `Substring Containment`: The normalized quote must literally exist as a contiguous substring of the normalized full page text.
-3. `Normalization`: Both quote and page text undergo typographic mapping (curly single/double quotes and en/em dashes converted to ASCII), case folding to lowercase, and whitespace collapsing. Outer quotation marks are trimmed.
-4. `Conservative Downgrade`: If a model claims `SUPPORTS` or `CONTRADICTS` but manufactures a quote not found on the page, the decision is deterministically downgraded to `NOT_ADDRESSED`.
+### Exact Normalization Transformations & Constants:
+1. **Typographic Single Quote Normalization**: Maps Unicode curly single quotes `\u2018` (‘) and `\u2019` (’) to ASCII `'`.
+2. **Typographic Double Quote Normalization**: Maps Unicode curly double quotes `\u201c` (“) and `\u201d` (”) to ASCII `"`.
+3. **Typographic Dash Normalization**: Maps Unicode en-dash `\u2013` (–) and em-dash `\u2014` (—) to ASCII `-`.
+4. **Case-Folding**: Converts all characters to lowercase via `.lower()`.
+5. **Whitespace Collapsing**: Splits by whitespace tokens and rejoins with a single space (`" ".join(s.lower().split())`), collapsing spaces, tabs, and newlines.
+6. **Outer Quotation Trimming**: Removes surrounding single and double quotation marks from the candidate quote via `.strip("\"'")`.
+7. **Minimum Length Threshold**: `MIN_QUOTE_LEN = 25`. Any normalized quote under 25 characters is considered insufficient evidence and downgraded to `NOT_ADDRESSED`.
+8. **Normalized Substring Containment**: Enforces `norm_quote in norm_page` (một đoạn xuất hiện liên tục trong văn bản trang sau khi chuẩn hoá chữ hoa/thường, khoảng trắng và dấu câu kiểu in).
+
+*(Note on contract source comments/prompts: Comments and system prompts inside `contracts/CitationCourt.py` instruct the LLM to supply a "verbatim quote" to deter generative rewriting, but the contract verification code executes the normalized containment check documented above).*
 
 > [!WARNING]
-> **Grounding Boundary & Limitation**: Grounding verifies that the quote literally exists within the fetched page text; it does NOT prove the source text is reliable, truthful, or free of malicious injections. If an adversarial page deliberately embeds a fake assertion ("Claim X is fully confirmed") and the model quotes that passage verbatim, grounding will succeed because the passage is literally present. Defense against prompt injection relies strictly on framing untrusted data inside structured delimiters and LLM instruction-following.
+> **Grounding Boundary & Limitation**: Grounding verifies that a passage appears contiguously in the page text after normalization of case, whitespace, and typographic punctuation; it does NOT prove the source text is reliable, truthful, or free of malicious injections. If an adversarial page deliberately embeds a fake assertion ("Claim X is fully confirmed") and the model quotes that passage, grounding will succeed because the passage is present on the page. Defense against prompt injection relies strictly on framing untrusted data inside structured delimiters and LLM instruction-following.
 
 ---
 
@@ -80,3 +104,4 @@ Persistent state is strictly stored as canonical JSON strings in GenLayer `TreeM
   - `next_id`: Decimal counter string for predictable auto-incrementing IDs.
   - `recent`: JSON array of recent claim IDs (capped at 50).
   - `stats`: Canonical JSON object tracking counts for `total_claims`, `total_judgments`, `supports`, `contradicts`, `not_addressed`, and `unreadable`.
+    - Counting semantics: `total_claims` counts claims lodged via `lodge_claim`. `total_judgments` and individual verdict counters count judgment executions via `judge_claim`. Re-judging an unreadable claim (e.g. Case F) records an additional judgment, incrementing `total_judgments` and `unreadable` again. The invariant `total_judgments == supports + contradicts + not_addressed + unreadable` holds at all times.

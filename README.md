@@ -15,7 +15,7 @@ Citation Court introduces a decentralized, multi-validator adjudication protocol
 3. HTML is deterministically stripped of scripts, styles, and tags, and normalized.
 4. For long pages (>8000 characters), deterministic keyword-density windowing extracts the most relevant semantic contexts up to 6000 characters in their original document order.
 5. Independent validator LLMs evaluate the claim against the page context.
-6. **Verbatim Grounding Downgrade**: If an LLM returns `SUPPORTS` or `CONTRADICTS`, the contract verifies that the accompanying quote is at least 25 characters long and is a literal substring of the full cleaned source page. If ungrounded or fabricated, the verdict is deterministically downgraded to `NOT_ADDRESSED`.
+6. **Normalized Grounding Downgrade**: If an LLM returns `SUPPORTS` or `CONTRADICTS`, the contract verifies that the accompanying quote is at least 25 characters long and appears contiguously in the full cleaned source text after normalizing case, whitespace, and typographic punctuation. If ungrounded or fabricated, the verdict is deterministically downgraded to `NOT_ADDRESSED`.
 7. Validators achieve consensus on exactly **one canonical enum**: `SUPPORTS`, `CONTRADICTS`, `NOT_ADDRESSED`, or `UNREADABLE`.
 
 ---
@@ -93,7 +93,7 @@ python -m unittest discover tests -v
 ---
 
 ## Known Limitations
-1. **Grounding Limitation & Adversarial Text:** The verbatim grounding rule proves that a passage literally appears within the fetched source page; it does NOT prove the source text is reliable, truthful, or free of adversarial injections. If an adversarial page contains an injected assertion and the model quotes it verbatim, grounding will succeed. Defending against prompt injection relies strictly on framing untrusted data inside structured delimiters and LLM instruction-following.
+1. **Grounding Limitation & Adversarial Text:** The grounding check proves that a passage appears contiguously in the source text after normalization of case, whitespace, and typographic punctuation; it does NOT prove the source text is reliable, truthful, or free of adversarial injections. If an adversarial page contains an injected assertion and the model quotes that passage, grounding will succeed. Defending against prompt injection relies strictly on framing untrusted data inside structured delimiters and LLM instruction-following.
 2. **Client-Side Rendered Web Pages:** Pages relying exclusively on client-side JavaScript execution (SPAs) will yield raw script/template markup or minimal text (<200 chars), resulting in `UNREADABLE`.
 3. **Volatile Web Content:** If a target URL changes between validator execution windows, validators may fetch divergent text, leading to `MAJORITY_DISAGREE`.
 4. **Paywalled / Bot-Protected Content:** Sites enforcing Cloudflare CAPTCHAs, CloudFront blocks, or subscription paywalls will return HTTP 403/401 and resolve as `UNREADABLE`.
@@ -111,7 +111,7 @@ python -m unittest discover tests
 
 # 3. Deploy and execute on-chain evidence
 node scripts/deploy/deploy_core.js
-node scripts/deploy/run_live_evidence.js
+node scripts/deploy/run_evidence.js
 node scripts/deploy/deploy_consumer.js
 ```
 

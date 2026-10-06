@@ -4,7 +4,7 @@
   "cases": [
     {
       "case_name": "case_a_supports",
-      "description": "Clearly supported claim against supports.md with verified verbatim quote",
+      "description": "Clearly supported claim against supports.md with verified normalized quote",
       "claim_id": "1",
       "claim_text": "Project Nova quarterly revenue reached $14.2 million representing an increase of 42 percent.",
       "url": "https://raw.githubusercontent.com/huzyow155/citation-court-genlayer/main/fixtures/supports.md",
@@ -150,14 +150,17 @@
     }
   ],
   "finalStats": {
+    "source": "get_stats / list_recent read-back",
+    "capturedAt": "2026-10-06T03:39:53.585Z",
     "contradicts": 2,
     "not_addressed": 2,
-    "supports": 1,
-    "total_claims": 7,
-    "total_judgments": 8,
+    "supports": 2,
+    "total_claims": 8,
+    "total_judgments": 9,
     "unreadable": 3
   },
   "recentClaims": [
+    "8",
     "7",
     "6",
     "5",
