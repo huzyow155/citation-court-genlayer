@@ -84,11 +84,11 @@ async function main() {
     "0x041b1d4af8da6622451e49b4d045a43a6d87e4b2a63e1d3f544779a0b9fc5cc9": "Case A (Supports) lodge_claim Tx",
     "0xa64cd6227bd3ed898d955f01fb44bd05e234ae4219c4b3b7f2e8d0b2a85ba0ea": "Case A (Supports) judge_claim Tx",
     // Case B
-    "0x489679f187a55ca873528b1e4c30c33a59533f8ea449d0ea4fa16362ea70d1a4": "Case B (Contradicts) lodge_claim Tx",
-    "0x5ca5e9ae50e7a177fe7754f762699318b76df42cb52ea024f9b8849b29cb2563": "Case B (Contradicts) judge_claim Tx",
+    "0x4d94d98607705f3567a51f68977e37ee7fe32f93a1bdacb58836a3f35c842236": "Case B (Contradicts) lodge_claim Tx",
+    "0xfd75f4f5d4a3bcd42d4bcc541b6da938962bc88d8baa6ad3db49c77495d4fe7f": "Case B (Contradicts) judge_claim Tx",
     // Case C
-    "0x2c6cb1a5e8067b8483b34b172a6b2fb5007466fa858189673ba7e2b17b6a4897": "Case C (Not Addressed) lodge_claim Tx",
-    "0x56a640ce1c8d52367d312e0e41f0a1c62f3fdf86ee8670df185d26a27e7ca451": "Case C (Not Addressed) judge_claim Tx",
+    "0x587c85f3f162d39970b49c02f44e36555321ab2150dd6efdd2b5d8778018b763": "Case C (Not Addressed) lodge_claim Tx",
+    "0xa5a690dd6fd068bd08e3118fe8dc3583af8f30fd64cfe4e9567bd3b50dff7cc4": "Case C (Not Addressed) judge_claim Tx",
     // Case D
     "0xbe1a397bb81e0f5bebf6570cf0189bd243a8a1b7f0b428c270cb3b122aac4089": "Case D (Near Miss) lodge_claim Tx",
     "0x7fdb59625542ea1ddc594f04e382f5ed50c38e1d71fac7cd61c6a20f6ca4b3e0": "Case D (Near Miss) judge_claim Tx",
@@ -96,15 +96,17 @@ async function main() {
     "0x7d0361441f7d38f07d00399b108ced75b0025ca828addd1f04342395fdd14e9a": "Case E (Prompt Injection) lodge_claim Tx",
     "0x469a88b87f8b57395755fe0a8e65e6963b818df756101174c16feb015eddb651": "Case E (Prompt Injection) judge_claim Tx",
     // Case F
-    "0x8c7bb807fa7a21fb94d0144f80c65c26922cfb940954be94bb8006e88e8955b2": "Case F (404 Unreadable) lodge_claim Tx",
-    "0x6854e44b9b9a67a07997933f7936a5b6c2049e29a8a70517743d84a5697b0a7d": "Case F (404 Unreadable) judge_claim Run 1 Tx",
-    "0x5309d4fc161f00843236eb2efc4d21b369c73cfd71e2efd9744c8034a7536979": "Case F (404 Unreadable) judge_claim Run 2 (Re-judge) Tx",
+    "0x734a684a9abc9947ee32a75edb85665e9c0fa2108cc8d25baca99d45188a1c62": "Case F (404 Unreadable) lodge_claim Tx",
+    "0x1cab8dedfa68b3ddfec5e0f4a2b1bbec1e0eb1847399eb7c97f34c3bb34641f8": "Case F (404 Unreadable) judge_claim Run 1 Tx",
+    "0xc3bbd9392441e1754ad32174b405419899ca1856d53d63c4edbeaa5e2ccc1ce2": "Case F (404 Unreadable) judge_claim Run 2 (Re-judge) Tx",
     // Case G
-    "0xcf85353086eb2d69f0426f8d030999557434fa5efb011d08e561492ba6f29633": "Case G (Short Page Unreadable) lodge_claim Tx",
-    "0x28dc2c1a851aa9166f3e498c4d2d475ce3a60db6e355c4d5d9a9cb0b2308cf2d": "Case G (Short Page Unreadable) judge_claim Tx",
+    "0xc6055bbb59c8d1883c0fd990414f98bb5ab61eb12be9b2ba2bff5307374c83d2": "Case G (Short Page Unreadable) lodge_claim Tx",
+    "0xc140440182750ea3f4f12ea0ce6e6b1c9bd94c98c499de77753ffed7367f8b65": "Case G (Short Page Unreadable) judge_claim Tx",
     // Case H
     "0x5079397ca576761237edaac4b155b507c81802fa84b9e8da09f3b4bc094f5a9b": "Case H (Wiki Earth Supports) lodge_claim Tx",
     "0xdb555c3638b551b6aeef67a88b2f58063881995af5ba449d2c8e4c6d4c261ecf": "Case H (Wiki Earth Supports) judge_claim Tx",
+    // Runtime probe consensus
+    "0x4bdc54a36130d1ea482b127b55f13dff4f8e3bbbc2282c80014bba966a26a8de": "RuntimeProbe probe_consensus Tx",
   };
 
   const addressRows = [];
@@ -114,9 +116,9 @@ async function main() {
     try {
       // Test if contract by checking code
       const code = await client.getContractCode(addr);
-      rpcEvidence = (code && code.length > 0) ? `Contract (code: ${code.length} chars)` : "EOA Account";
+      rpcEvidence = (code && code.length > 0) ? `Contract (code: ${code.length} chars)` : "not a contract (getContractCode returned not found)";
     } catch (e) {
-      rpcEvidence = "EOA / Unregistered";
+      rpcEvidence = "not a contract (getContractCode returned not found)";
     }
     const occ = Array.from(occurrences.get(addr) || []).sort().join(", ");
     addressRows.push({ address: addr, role, rpcEvidence, occurrences: occ });

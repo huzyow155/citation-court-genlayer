@@ -35,7 +35,9 @@ This document verifies the three-part transaction receipt criteria across all pr
 
 ---
 
-## 2. Raw Receipt Extracts (JSON)
+## 2. Receipt Extracts (summary derived from raw receipt)
+
+The JSON extracts below are summary objects derived from the full raw receipts for quick human inspection:
 
 ### CitationCourt Deploy
 - **Hash**: `0x99c85d3d9820f1fc691559dfb0ec5e1744adf6ef77c132c54c51b6f26dcc2c04`
@@ -252,3 +254,15 @@ This document verifies the three-part transaction receipt criteria across all pr
   "votes_count": 5
 }
 ```
+
+---
+
+## 3. Raw Full RPC Receipts Archive (`scripts/deploy/receipts_raw.json`)
+
+- **Archive File**: `scripts/deploy/receipts_raw.json` (531,200 bytes)
+- **Generation Command**: `node scripts/fetch_receipts_raw.js`
+- **Fetched Timestamp**: `2026-10-06T04:18:06.555Z`
+- **RPC Endpoint**: `https://studio.genlayer.com/api`
+- **Scope**: Complete, unadulterated RPC response trees for all 12 primary write transactions (including full `consensus_data.leader_receipt`, `consensus_data.votes`, and `consensus_data.validators` arrays).
+- **Note on `scripts/deploy/live_evidence.json`**: For automated test reporting of live cases B through H, `live_evidence.json` stores summary execution metrics (`judge_status`, `judge_result`, `recorded_verdict`, `latency_sec`) rather than duplicating the entire multi-kilobyte RPC receipt structures on disk. The full consensus and validator receipt trees for all 12 transactions are preserved directly in `scripts/deploy/receipts_raw.json`.
+
