@@ -266,5 +266,5 @@ The JSON extracts below are summary objects derived from the full raw receipts f
 - **Fetched Timestamp**: `2026-10-06T04:18:06.555Z`
 - **RPC Endpoint**: `https://studio.genlayer.com/api`
 - **Scope**: Complete, unadulterated RPC response trees for all 12 primary write transactions (including full `consensus_data.leader_receipt`, `consensus_data.votes`, and `consensus_data.validators` arrays).
-- **Note on `scripts/deploy/live_evidence.json`**: For automated test reporting of live cases B through H, `live_evidence.json` stores summary execution metrics (`judge_status`, `judge_result`, `recorded_verdict`, `latency_sec`) rather than duplicating the entire multi-kilobyte RPC receipt structures on disk. The full consensus and validator receipt trees for all 12 transactions are preserved directly in `scripts/deploy/receipts_raw.json`.
+- **Note on `scripts/deploy/live_evidence.json`**: For automated test reporting of cases B through H on Studionet, `live_evidence.json` stores summary execution metrics (`judge_status`, `judge_result`, `recorded_verdict`, `latency_sec`) rather than duplicating the entire multi-kilobyte RPC receipt structures on disk. The full consensus and validator receipt trees for all 12 transactions are preserved directly in `scripts/deploy/receipts_raw.json`.
 

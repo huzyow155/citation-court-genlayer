@@ -11,7 +11,7 @@ This document registers and classifies all 27 20-byte `0x` addresses and 49 32-b
 > - `activator` & `last_leader`: Round leader node address.
 >
 > **RPC Classification Method:**
-> For each validator address, GenLayer RPC method `client.getContractCode(addr)` (`gen_getContractCode`) was queried. The RPC returned `"Contract <address> not found"` (empty bytecode `0x`), concluding that these are EOA / unregistered accounts operating as validator nodes rather than deployed smart contracts.
+> For each validator address, GenLayer RPC method `client.getContractCode(addr)` (`gen_getContractCode`) was queried. The RPC returned `"Contract <address> not found"` (empty contract code `0x`), concluding that these are EOA / unregistered accounts operating as validator nodes rather than deployed smart contracts.
 
 ## 1. Registered Addresses (20-byte hex)
 
@@ -109,3 +109,32 @@ This document registers and classifies all 27 20-byte `0x` addresses and 49 32-b
 
 ## 4. Foreign Project Term Isolation Verification
 - `git grep -n -i -e "mirrorjudge" -e "3991d0817" -e "294FFDec"` returned 0 hits across all files.
+
+
+---
+
+## 5. Milestone 1 Registered Addresses & Transactions (CitationCourtV2)
+
+### A. Addresses (20-byte hex)
+| Address | Role / Entity | Type (RPC Verification) | Appeared In |
+| :--- | :--- | :--- | :--- |
+| `0x76204705CCF4fB0eccF9243fb68aeeFeEC5dDFEe` | CitationCourtV2 Contract (Milestone 1 Multi-Source Corroboration Engine) | Contract (code: 21654 chars) | README.md, docs/ADDRESS_REGISTRY.md, docs/INTEGRATION.md, docs/VERIFICATION.md, docs/evidence_m1/v2_deploy_receipt.json |
+| `0x15aE1a73b15Ecc71E3d5Cee70A65d88a529B669A` | CitationCourtV2 Deployer & Primary Author EOA (Generated in deploy_and_verify_v2.js) | not a contract (getContractCode returned not found) | docs/ADDRESS_REGISTRY.md, docs/evidence_m1/v2_deploy_receipt.json, docs/evidence_m1/scenarios_raw.json |
+| `0x83009167B6E83d1A2de23E92a16E11268740272d` | Unauthorized Non-Author Caller EOA (Generated in deploy_and_verify_v2.js for refusal tests) | not a contract (getContractCode returned not found) | docs/ADDRESS_REGISTRY.md, docs/evidence_m1/refusals_raw.json |
+| `0xCCa69B612335ad2b3c9520fD976c2d1E9CC8E232` | Scenario Runner EOA (Generated in run_scenarios_b_d_f.js) | not a contract (getContractCode returned not found) | docs/ADDRESS_REGISTRY.md, docs/evidence_m1/scenarios_raw.json |
+
+### B. Transactions & Hashes (32-byte hex)
+| Hash | Role / Transaction | RPC Evidence (`from`, `to`, `function`) | Appeared In |
+| :--- | :--- | :--- | :--- |
+| `0x75454c43acbe357e3b78fdcf0aa5abfd656bae2dc1ddbe02fd9d251f1a8984fa` | CitationCourtV2 Deploy Tx | from: 0x15aE1a73b15Ecc71E3d5Cee70A65d88a529B669A, to: 0x76204705CCF4fB0eccF9243fb68aeeFeEC5dDFEe, fn: deploy | docs/ADDRESS_REGISTRY.md, docs/VERIFICATION.md, docs/evidence_m1/v2_deploy_receipt.json |
+| `0xbba19254bf440859cfc47a8e95dc9b0b04f3524601b9cf07f1fc86159d83d9ce` | Scenario (a) Judge Source 1 Tx | from: 0x15aE1a73b15Ecc71E3d5Cee70A65d88a529B669A, to: 0x76204705CCF4fB0eccF9243fb68aeeFeEC5dDFEe, fn: judge_source | docs/ADDRESS_REGISTRY.md, docs/VERIFICATION.md, docs/evidence_m1/scenarios_raw.json |
+| `0x6d58da253dfc07e96a83fb1167061e42ac20fc7145a2ee994bf5cbe54c9120eb` | Scenario (b) Judge Source 1 Tx | from: 0xCCa69B612335ad2b3c9520fD976c2d1E9CC8E232, to: 0x76204705CCF4fB0eccF9243fb68aeeFeEC5dDFEe, fn: judge_source | docs/ADDRESS_REGISTRY.md, docs/VERIFICATION.md, docs/evidence_m1/scenarios_raw.json |
+| `0x32d5a7778f4dd433249e41ef6850144e363f3cc2609ed7b5c2a6a20d8090e49b` | Scenario (c) Judge Source 0 Tx | from: 0x15aE1a73b15Ecc71E3d5Cee70A65d88a529B669A, to: 0x76204705CCF4fB0eccF9243fb68aeeFeEC5dDFEe, fn: judge_source | docs/ADDRESS_REGISTRY.md, docs/VERIFICATION.md, docs/evidence_m1/scenarios_raw.json |
+| `0x16e519c4f601265234a3336f0444a0646d14406f11bd7d021e99b0219ac16ae3` | Scenario (d) Judge Source 0 Tx | from: 0xCCa69B612335ad2b3c9520fD976c2d1E9CC8E232, to: 0x76204705CCF4fB0eccF9243fb68aeeFeEC5dDFEe, fn: judge_source | docs/ADDRESS_REGISTRY.md, docs/VERIFICATION.md, docs/evidence_m1/scenarios_raw.json |
+| `0xfa7119181f7accb70e2af788a0ab34e8bb784b515d87e617f436db449fe873aa` | Scenario (e) Judge Source 1 Tx | from: 0x15aE1a73b15Ecc71E3d5Cee70A65d88a529B669A, to: 0x76204705CCF4fB0eccF9243fb68aeeFeEC5dDFEe, fn: judge_source | docs/ADDRESS_REGISTRY.md, docs/VERIFICATION.md, docs/evidence_m1/scenarios_raw.json |
+| `0x8493c74eceb41075e44505e38277fbbc92595e988a5c27fada104f7edb9de37c` | Scenario (f) Judge Source 2 Tx | from: 0xCCa69B612335ad2b3c9520fD976c2d1E9CC8E232, to: 0x76204705CCF4fB0eccF9243fb68aeeFeEC5dDFEe, fn: judge_source | docs/ADDRESS_REGISTRY.md, docs/VERIFICATION.md, docs/evidence_m1/scenarios_raw.json |
+| `0x7889187d7348c3a0aacbc13985dce7c14cf2cc950298447f342bd742ba23f073` | Scenario (g) Add Source 1 Tx | from: 0x15aE1a73b15Ecc71E3d5Cee70A65d88a529B669A, to: 0x76204705CCF4fB0eccF9243fb68aeeFeEC5dDFEe, fn: add_source | docs/ADDRESS_REGISTRY.md, docs/VERIFICATION.md, docs/evidence_m1/scenarios_raw.json |
+| `0x0b1fef54325e62c859ecd18e69f7d98d7b351510f91cafb8e5691619accee19a` | Refusal: Source Limit Reached Tx | from: 0x15aE1a73b15Ecc71E3d5Cee70A65d88a529B669A, to: 0x76204705CCF4fB0eccF9243fb68aeeFeEC5dDFEe, fn: add_source | docs/ADDRESS_REGISTRY.md, docs/VERIFICATION.md, docs/evidence_m1/refusals_raw.json |
+| `0xe7bfc1aa28d7cd5956a77e9f8d371168a2bb4087c34636e12217a580b4d7927e` | Refusal: Duplicate Source Tx | from: 0x15aE1a73b15Ecc71E3d5Cee70A65d88a529B669A, to: 0x76204705CCF4fB0eccF9243fb68aeeFeEC5dDFEe, fn: add_source | docs/ADDRESS_REGISTRY.md, docs/VERIFICATION.md, docs/evidence_m1/refusals_raw.json |
+| `0x27bc5694a4f1bb3750d04a4726d836e46a78a1ff5e5a5f0feede6eb12cdd08ad` | Refusal: Only Author Can Add Tx | from: 0x83009167B6E83d1A2de23E92a16E11268740272d, to: 0x76204705CCF4fB0eccF9243fb68aeeFeEC5dDFEe, fn: add_source | docs/ADDRESS_REGISTRY.md, docs/VERIFICATION.md, docs/evidence_m1/refusals_raw.json |
+| `0x655d4ec3252f6f035bee7c5f9672879fcd51dbb7704d3f6288199fae1a32fd08` | Refusal: Claim Already Judged Tx | from: 0x15aE1a73b15Ecc71E3d5Cee70A65d88a529B669A, to: 0x76204705CCF4fB0eccF9243fb68aeeFeEC5dDFEe, fn: judge_source | docs/ADDRESS_REGISTRY.md, docs/VERIFICATION.md, docs/evidence_m1/refusals_raw.json |

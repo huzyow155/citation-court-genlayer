@@ -18,6 +18,19 @@ Citation Court introduces a decentralized, multi-validator adjudication protocol
 6. **Normalized Grounding Downgrade**: If an LLM returns `SUPPORTS` or `CONTRADICTS`, the contract verifies that the accompanying quote is at least 25 characters long and appears contiguously in the full cleaned source text after normalizing case, whitespace, and typographic punctuation. If ungrounded or fabricated, the verdict is deterministically downgraded to `NOT_ADDRESSED`.
 7. Validators achieve consensus on exactly **one canonical enum**: `SUPPORTS`, `CONTRADICTS`, `NOT_ADDRESSED`, or `UNREADABLE`.
 
+### Milestone 1: Multi-Source Corroboration (V2)
+While V1 judges a claim against exactly one source URL, **CitationCourtV2** introduces multi-source corroboration:
+- A claim author can register up to 3 independent source URLs.
+- Each source is judged independently via multi-validator consensus using the unchanged evaluation pipeline.
+- An LLM-free deterministic pure function (`_combine`) synthesizes individual verdicts into an overall corroboration standing:
+  - `CORROBORATED`: >= 2 supporting sources and 0 contradictions.
+  - `SINGLE_SOURCE`: Exactly 1 supporting source and 0 contradictions.
+  - `DISPUTED`: At least 1 supporting source and at least 1 contradictory source.
+  - `CONTRADICTED`: At least 1 contradictory source and 0 supporting sources.
+  - `UNSUPPORTED`: Judged sources yielded only `NOT_ADDRESSED` and/or `UNREADABLE`.
+  - `UNJUDGED`: No sources have been evaluated yet.
+- Downstream contracts query `is_corroborated(claim_id, min_supports)`: strictly returns `"true"` only if `contradicts == 0` and `supports >= min_supports` (bounded range 1..3).
+
 ---
 
 ## Why GenLayer
@@ -25,7 +38,7 @@ Evaluating claim citations requires:
 - **Real-time web retrieval** of arbitrary external web pages.
 - **Semantic natural language understanding** to evaluate evidence against claims.
 
-On traditional deterministic blockchains, contracts cannot make outbound HTTP calls or run natural language reasoning. On a centralized server, verification can be silently compromised or censored. On GenLayer, multiple independent validators execute both web retrieval and LLM evaluation under the Equivalence Principle (`gl.eq_principle.strict_eq`), producing decentralized, verifiable rulings directly queryable on-chain.
+On traditional deterministic blockchains, contracts cannot make outbound HTTP calls or run natural language reasoning. On a centralized server, verification can be silently altered or censored. On GenLayer, multiple independent validators execute both web retrieval and LLM evaluation under the Equivalence Principle (`gl.eq_principle.strict_eq`), producing decentralized, verifiable rulings directly queryable on-chain.
 
 ---
 
@@ -38,62 +51,51 @@ On traditional deterministic blockchains, contracts cannot make outbound HTTP ca
 
 ---
 
-## Deployed Address & Studionet Explorer
-- **Network**: GenLayer Studionet (Chain ID: `61999`)
-- **RPC URL**: `https://studio.genlayer.com/api`
-- **CitationCourt Address**: `0x58aDf2Fd47dD939623BFd66929ec26117fb8CFa5`
-- **Studionet Explorer**: https://explorer-studio.genlayer.com/address/0x58aDf2Fd47dD939623BFd66929ec26117fb8CFa5
-- **CitedBoard Consumer Address**: `0x339dA01705d57f0d6AD917f0eC4950f8a8f95CC4`
-- **Consumer Explorer**: https://explorer-studio.genlayer.com/address/0x339dA01705d57f0d6AD917f0eC4950f8a8f95CC4
+## Deployed Addresses & Studionet Explorers
+
+| Contract | Address | Studionet Explorer Link | Status / Version |
+| :--- | :--- | :--- | :--- |
+| **CitationCourtV2** | `0x76204705CCF4fB0eccF9243fb68aeeFeEC5dDFEe` | [View V2 on Explorer](https://explorer-studio.genlayer.com/address/0x76204705CCF4fB0eccF9243fb68aeeFeEC5dDFEe) | Milestone 1 (2.0.0, Multi-Source Corroboration) |
+| **CitationCourt** (V1) | `0x58aDf2Fd47dD939623BFd66929ec26117fb8CFa5` | [View V1 on Explorer](https://explorer-studio.genlayer.com/address/0x58aDf2Fd47dD939623BFd66929ec26117fb8CFa5) | Preview Baseline (1.0.0, Single-Source) |
+| **CitedBoard** | `0x339dA01705d57f0d6AD917f0eC4950f8a8f95CC4` | [View CitedBoard on Explorer](https://explorer-studio.genlayer.com/address/0x339dA01705d57f0d6AD917f0eC4950f8a8f95CC4) | Consumer Reference Contract |
 
 ---
 
-## Verified Transactions & Latency
+## Public Methods Summary
 
-| Scenario | Claim ID | Verdict | Status | Consensus Result | Latency |
-| :--- | :---: | :---: | :---: | :---: | :---: |
-| **Contract Deploy** | - | - | ACCEPTED | MAJORITY_AGREE | - |
-| **Case A (Supports)** | 1 | `SUPPORTS` | ACCEPTED | MAJORITY_AGREE | 15.12s |
-| **Case B (Contradicts)** | 2 | `CONTRADICTS` | ACCEPTED | MAJORITY_AGREE | 15.52s |
-| **Case C (Not Addressed)** | 3 | `NOT_ADDRESSED` | ACCEPTED | MAJORITY_AGREE | 15.32s |
-| **Case D (Near-Miss Trap)** | 4 | `CONTRADICTS` | ACCEPTED | MAJORITY_AGREE | 12.06s |
-| **Case E (Prompt Injection)**| 5 | `NOT_ADDRESSED` | ACCEPTED | MAJORITY_AGREE | 15.40s |
-| **Case F (404 Unreadable)** | 6 | `UNREADABLE` | ACCEPTED | MAJORITY_AGREE | 12.08s |
-| **Case F (Re-judge Attempt)**| 6 | `UNREADABLE` | ACCEPTED | MAJORITY_AGREE | 8.85s |
-| **Case G (Short Page <200)** | 7 | `UNREADABLE` | ACCEPTED | MAJORITY_AGREE | 9.42s |
-| **Case H (Wikipedia Fixed)** | 8 | `SUPPORTS` | ACCEPTED | MAJORITY_AGREE | 15.33s |
-| **Consumer Cross-Contract** | 1 | `POSTED` | ACCEPTED | MAJORITY_AGREE | 4.10s |
+### Write Methods
+- `lodge_claim(claim: str, source_url: str) -> str`: Lodges a claim with initial source URL (index 0).
+- `add_source(claim_id: str, source_url: str) -> str`: Adds up to 2 corroborating URLs (claim author only, duplicate rejected).
+- `judge_source(claim_id: str, index: int) -> str`: Triggers multi-validator consensus for a specific source index.
+- `judge_claim(claim_id: str) -> str`: V1-compatible alias for `judge_source(claim_id, 0)`.
 
-### Latency Measurement Methodology & Groups
-Latency is measured synchronously in client scripts as wall-clock elapsed time `(Date.now() - t0) / 1000` from `client.writeContract()` submission to `client.waitForTransactionReceipt()` confirmation (`ACCEPTED` / `MAJORITY_AGREE`).
-
-The transactions naturally split into two operational groups:
-1. **Full LLM Consensus Judgments (A, B, C, D, E, H)**:
-   - Evaluates full page text and executes multi-validator LLM prompt reasoning.
-   - Raw values: `[15.12, 15.52, 15.32, 12.06, 15.40, 15.33]` seconds.
-   - **Mean**: **14.79s** (Range: 12.06s - 15.52s).
-2. **Fast UNREADABLE Path (F attempt 1, F re-judge, G)**:
-   - Bypasses LLM prompt execution immediately upon HTTP error or page length < 200 chars.
-   - Case F (404 attempt 1): `12.08s`
-   - Case F (404 re-judge): `8.85s`
-   - Case G (Short page < 200 chars): `9.42s`
-   - **Mean**: **10.12s** (Range: 8.85s - 12.08s).
+### View Methods
+- `is_corroborated(claim_id: str, min_supports: int) -> str`: Returns `"true"` if contradicts == 0 and supports >= min_supports (clamped 1..3).
+- `get_corroboration(claim_id: str) -> str`: Returns canonical JSON with label, per-verdict counts, and source totals.
+- `get_sources(claim_id: str) -> str`: Returns JSON array of registered source URLs.
+- `get_source_ruling(claim_id: str, index: int) -> str`: Returns ruling record for a specific source index.
+- `get_claim(claim_id: str) -> str`: Returns claim metadata record.
+- `get_ruling(claim_id: str) -> str`: Returns ruling for source index 0.
+- `list_recent(limit: int = 10) -> str`: Lists recent claim IDs.
+- `list_by_author(author: str, limit: int = 10) -> str`: Lists claim IDs by author.
+- `latest_by_author(author: str) -> str`: Returns newest claim ID for author.
+- `get_stats() -> str`: Returns protocol statistics.
 
 ---
 
 ## Test Suite & Star Test
-The project includes a 3-layer test suite with 22 unit tests:
+The project includes a 3-layer automated test suite with 32 unit tests:
 ```bash
 python -m unittest discover tests -v
 ```
-- **Layer 1 (Pure Functions & Star Test)**: Validates text normalization, HTML cleaning, keyword-density windowing, structured URL parsing, the **Star Test** (fabricated quotes downgraded to `NOT_ADDRESSED`), and the **Grounding Limitation Test** (injected quote present in source still passes grounding).
-- **Layer 2 (Mocked Simulator)**: Tests all contract error conditions, permission checks, SSRF URL rejection, 404 attempt accounting, and discovery view limits using a pure-Python simulator (`CitationCourtSim`). *(Note: Layer 2 simulator does not execute under GenVM; all 15 UserError strings are verified identical to the contract).*
-- **Layer 3 (Consensus Dynamics)**: Validates that heterogeneous validator models converge to the exact same canonical enum.
+- **Layer 1 (Pure Functions, Parity & Star Test - 13 tests)**: Validates text normalization, HTML cleaning, keyword-density windowing, structured URL parsing, the **Star Test** (fabricated quotes downgraded to `NOT_ADDRESSED`), exhaustive 85-combination parity check between contract and harness `_combine`, and 200-cycle seeded random fuzzing sequences.
+- **Layer 2 (Mocked Simulator - 16 tests)**: Tests all 7 protocol user errors (`unknown claim id`, `claim already judged`, `attempt limit reached`, `only the claim author can add sources`, `source limit reached`, `duplicate source`, `invalid source index`), duplicate URL detection across case/slashes/fragments, multi-source corroboration state transitions, and view limits.
+- **Layer 3 (Consensus Dynamics - 3 tests)**: Validates that heterogeneous validator models converge to the exact same canonical enum.
 
 ---
 
 ## Known Limitations
-1. **Grounding Limitation & Adversarial Text:** The grounding check verifies that a passage appears contiguously in the source text after normalization of case, whitespace, and typographic punctuation; it does NOT verify whether the source text is reliable, truthful, free of adversarial injections, or semantically related to the claim. If an adversarial page contains an injected assertion and the model quotes that passage, grounding will succeed. Defending against prompt injection relies strictly on framing untrusted data inside structured delimiters and LLM instruction-following.
+1. **Grounding Limitation and Adversarial Text:** The grounding check verifies that a passage appears contiguously in the source text after normalization of case, whitespace, and typographic punctuation; it does NOT verify whether the source text is reliable, truthful, free of adversarial injections, or semantically related to the claim. If an adversarial page contains an injected assertion and the model quotes that passage, grounding will succeed. Defending against prompt injection relies strictly on framing untrusted data inside structured delimiters and LLM instruction-following.
 2. **Client-Side Rendered Web Pages:** Pages relying exclusively on client-side JavaScript execution (SPAs) will yield raw script/template markup or minimal text (<200 chars), resulting in `UNREADABLE`.
 3. **Volatile Web Content:** If a target URL changes between validator execution windows, validators may fetch divergent text, leading to `MAJORITY_DISAGREE`.
 4. **Paywalled / Bot-Protected Content:** Sites enforcing Cloudflare CAPTCHAs, CloudFront blocks, or subscription paywalls will return HTTP 403/401 and resolve as `UNREADABLE`.
@@ -106,13 +108,14 @@ python -m unittest discover tests -v
 # 1. Install dependencies
 npm install
 
-# 2. Run test suite
+# 2. Run automated test suite
 python -m unittest discover tests
 
-# 3. Deploy and execute on-chain evidence
-node scripts/deploy/deploy_core.js
-node scripts/deploy/run_evidence.js
-node scripts/deploy/deploy_consumer.js
+# 3. Deploy CitationCourtV2 and run on-chain verification
+node scripts/deploy/deploy_and_verify_v2.js
+
+# 4. Generate Milestone report
+node scripts/m1_report.mjs
 ```
 
 ---

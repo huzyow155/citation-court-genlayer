@@ -55,9 +55,9 @@ def _ground(verdict: str, quote: str, clean_page_text: str) -> str:
 ```
 
 ### Exact Normalization Transformations & Constants:
-1. **Typographic Single Quote Normalization**: Maps Unicode curly single quotes `\u2018` (‘) and `\u2019` (’) to ASCII `'`.
-2. **Typographic Double Quote Normalization**: Maps Unicode curly double quotes `\u201c` (“) and `\u201d` (”) to ASCII `"`.
-3. **Typographic Dash Normalization**: Maps Unicode en-dash `\u2013` (–) and em-dash `\u2014` (—) to ASCII `-`.
+1. **Typographic Single Quote Normalization**: Maps Unicode curly single quotes `\u2018` (') and `\u2019` (') to ASCII `'`.
+2. **Typographic Double Quote Normalization**: Maps Unicode curly double quotes `\u201c` (") and `\u201d` (") to ASCII `"`.
+3. **Typographic Dash Normalization**: Maps Unicode en-dash `\u2013` (-) and em-dash `\u2014` (-) to ASCII `-`.
 4. **Case-Folding**: Converts all characters to lowercase via `.lower()`.
 5. **Whitespace Collapsing**: Splits by whitespace tokens and rejoins with a single space (`" ".join(s.lower().split())`), collapsing spaces, tabs, and newlines.
 6. **Outer Quotation Trimming**: Removes surrounding single and double quotation marks from the candidate quote via `.strip("\"'")`.

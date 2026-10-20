@@ -183,3 +183,40 @@ All hashes and read-backs below are raw outputs generated during the Milestone 4
     "post_id": "1"
   }
   ```
+
+
+---
+
+## 4. Milestone 1: Multi-Source Corroboration Verification (CitationCourtV2)
+
+### A. Contract Deployment & Source Verification
+- **Contract Class**: `CitationCourtV2`
+- **Source File**: `contracts/CitationCourtV2.py`
+- **Source SHA-256**: `5cc1b518ad7a6713b1530f007b1e25a8a74452f683a572bf73727b97b98250d8`
+- **Deployed Address**: `0x76204705CCF4fB0eccF9243fb68aeeFeEC5dDFEe`
+- **Deploy Transaction Hash**: `0x75454c43acbe357e3b78fdcf0aa5abfd656bae2dc1ddbe02fd9d251f1a8984fa`
+- **Deploy Status**: `ACCEPTED`
+- **Deploy Consensus Result**: `MAJORITY_AGREE`
+- **Deploy Leader Execution Result**: `SUCCESS`
+- **Source Verification**: Decoded `tx.data.contract_code` from the on-chain deploy transaction. Decoded SHA-256 matches `5cc1b518ad7a6713b1530f007b1e25a8a74452f683a572bf73727b97b98250d8` byte-for-byte with empty diff.
+
+### B. On-Chain Scenarios (a)-(g) Execution Table
+
+| Scenario | Expected Standing | Actual On-Chain Label | Claim ID | Key Tx Hash | Receipt Triple (status / result / leader_exec) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| (a) S + S | `CORROBORATED` | `CORROBORATED` | 1 | `0xbba19254bf440859cfc47a8e95dc9b0b04f3524601b9cf07f1fc86159d83d9ce` | `ACCEPTED / MAJORITY_AGREE / SUCCESS` |
+| (b) S + C | `DISPUTED` | `DISPUTED` | 8 | `0x6d58da253dfc07e96a83fb1167061e42ac20fc7145a2ee994bf5cbe54c9120eb` | `ACCEPTED / MAJORITY_AGREE / SUCCESS` |
+| (c) S only | `SINGLE_SOURCE` | `SINGLE_SOURCE` | 3 | `0x32d5a7778f4dd433249e41ef6850144e363f3cc2609ed7b5c2a6a20d8090e49b` | `ACCEPTED / MAJORITY_AGREE / SUCCESS` |
+| (d) C only | `CONTRADICTED` | `CONTRADICTED` | 9 | `0x16e519c4f601265234a3336f0444a0646d14406f11bd7d021e99b0219ac16ae3` | `ACCEPTED / MAJORITY_AGREE / SUCCESS` |
+| (e) N + U | `UNSUPPORTED` | `UNSUPPORTED` | 5 | `0xfa7119181f7accb70e2af788a0ab34e8bb784b515d87e617f436db449fe873aa` | `ACCEPTED / MAJORITY_AGREE / SUCCESS` |
+| (f) S + S + C | `DISPUTED` | `DISPUTED` | 10 | `0x8493c74eceb41075e44505e38277fbbc92595e988a5c27fada104f7edb9de37c` | `ACCEPTED / MAJORITY_AGREE / SUCCESS` |
+| (g) Unjudged | `UNJUDGED` | `UNJUDGED` | 7 | `0x7889187d7348c3a0aacbc13985dce7c14cf2cc950298447f342bd742ba23f073` | `ACCEPTED / MAJORITY_AGREE / SUCCESS` |
+
+### C. Refusal and Protocol Guard Verification on Studionet
+
+| Tested Guard | Error String | On-Chain Tx Hash | Receipt Status | Consensus Result | Execution Result |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| Source Cap (4th source) | `source limit reached` | `0x0b1fef54325e62c859ecd18e69f7d98d7b351510f91cafb8e5691619accee19a` | `ACCEPTED` | `MAJORITY_AGREE` | `ERROR` |
+| Deduplication Guard | `duplicate source` | `0xe7bfc1aa28d7cd5956a77e9f8d371168a2bb4087c34636e12217a580b4d7927e` | `ACCEPTED` | `MAJORITY_AGREE` | `ERROR` |
+| Author Authorization | `only the claim author can add sources` | `0x27bc5694a4f1bb3750d04a4726d836e46a78a1ff5e5a5f0feede6eb12cdd08ad` | `ACCEPTED` | `MAJORITY_AGREE` | `ERROR` |
+| Finality Guard | `claim already judged` | `0x655d4ec3252f6f035bee7c5f9672879fcd51dbb7704d3f6288199fae1a32fd08` | `ACCEPTED` | `MAJORITY_AGREE` | `ERROR` |
