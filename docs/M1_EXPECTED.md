@@ -14,11 +14,11 @@ prior to running any transactions on the GenLayer Studionet consensus network.
 | Scenario | Sources | Expected Per-Source Verdicts | Expected Combined Label | Rationale |
 | :--- | :--- | :--- | :--- | :--- |
 | (a) S + S | Source 0 (supports.md), Source 1 (supports2.md) | [SUPPORTS, SUPPORTS] | CORROBORATED | supports >= 2 and contradicts == 0 |
-| (b) S + C | Source 0 (supports.md), Source 1 (contradicts.md) | [SUPPORTS, CONTRADICTS] | DISPUTED | supports >= 1 and contradicts >= 1 |
+| (b) S + C | Source 0 (supports.md), Source 1 (near_miss.md) | [SUPPORTS, CONTRADICTS] | DISPUTED | supports >= 1 and contradicts >= 1 |
 | (c) S only | Source 0 (supports.md) | [SUPPORTS] | SINGLE_SOURCE | supports == 1 and contradicts == 0 |
-| (d) C only | Source 0 (contradicts.md) | [CONTRADICTS] | CONTRADICTED | contradicts >= 1 and supports == 0 |
+| (d) C only | Source 0 (near_miss.md) | [CONTRADICTS] | CONTRADICTED | contradicts >= 1 and supports == 0 |
 | (e) N + U | Source 0 (injection.md), Source 1 (short.md) | [NOT_ADDRESSED, UNREADABLE] | UNSUPPORTED | supports == 0 and contradicts == 0 |
-| (f) S + S + C | Source 0 (supports.md), Source 1 (supports2.md), Source 2 (contradicts.md) | [SUPPORTS, SUPPORTS, CONTRADICTS] | DISPUTED | supports >= 1 and contradicts >= 1 |
+| (f) S + S + C | Source 0 (supports.md), Source 1 (supports2.md), Source 2 (near_miss.md) | [SUPPORTS, SUPPORTS, CONTRADICTS] | DISPUTED | supports >= 1 and contradicts >= 1 |
 | (g) Unjudged | Source 0 (supports.md), Source 1 (supports2.md) | [] (0 judged) | UNJUDGED | 0 judged sources |
 
 ---
@@ -32,14 +32,14 @@ prior to running any transactions on the GenLayer Studionet consensus network.
 - Expected Verdict: `SUPPORTS`
 
 ### Fixture 2: supports2.md (Secondary Independent SUPPORTS)
-- URL: `https://cdn.jsdelivr.net/gh/huzyow155/citation-court-genlayer@63efe26/fixtures/supports2.md`
+- URL: `https://cdn.jsdelivr.net/gh/huzyow155/citation-court-genlayer@main/fixtures/supports2.md`
 - Host: `cdn.jsdelivr.net` (independent CDN host, different from primary fixture host)
 - Claim: `Project Nova quarterly revenue reached $14.2 million representing an increase of 42 percent.`
 - SHA-256: `5ef86b2044ea682ab1dff049786ed396bd37c9e7a1f267e194b8b1390d78bdce`
 - Expected Verdict: `SUPPORTS`
 
-### Fixture 3: contradicts.md (Primary CONTRADICTS)
-- URL: `https://raw.githubusercontent.com/huzyow155/citation-court-genlayer/main/fixtures/contradicts.md`
+### Fixture 3: near_miss.md (CONTRADICTS)
+- URL: `https://raw.githubusercontent.com/huzyow155/citation-court-genlayer/main/fixtures/near_miss.md`
 - Host: `raw.githubusercontent.com`
 - Claim: `Project Nova quarterly revenue reached $14.2 million representing an increase of 42 percent.`
 - Expected Verdict: `CONTRADICTS`
