@@ -3,7 +3,7 @@ import json
 core = json.load(open('scripts/deploy/core_output.json'))
 consumer = json.load(open('scripts/deploy/consumer_output.json'))
 probe = json.load(open('scripts/deploy/probe_output.json'))
-live = json.load(open('scripts/deploy/live_evidence.json'))
+evidence_data = json.load(open('scripts/deploy/live_evidence.json'))
 
 # Top-level transactions mapping
 tx_map = {

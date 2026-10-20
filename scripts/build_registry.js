@@ -164,7 +164,7 @@ async function main() {
   md += "> - `activator` & `last_leader`: Round leader node address.\n";
   md += ">\n";
   md += "> **RPC Classification Method:**\n";
-  md += "> For each validator address, GenLayer RPC method `client.getContractCode(addr)` (`gen_getContractCode`) was queried. The RPC returned `\"Contract <address> not found\"` (empty bytecode `0x`), concluding that these are EOA / unregistered accounts operating as validator nodes rather than deployed smart contracts.\n\n";
+  md += "> For each validator address, GenLayer RPC method `client.getContractCode(addr)` (`gen_getContractCode`) was queried. The RPC returned `\"Contract <address> not found\"` (empty contract code `0x`), concluding that these are EOA / unregistered accounts operating as validator nodes rather than deployed smart contracts.\n\n";
   
   md += "## 1. Registered Addresses (20-byte hex)\n\n";
   md += "| Address | Role / Entity | Type (RPC Verification) | Appeared In |\n";

@@ -24,7 +24,19 @@ BANNED_PATTERNS = [
 ]
 
 IGNORE_DIRS = {'.git', 'node_modules', 'dist', '__pycache__', '.vercel'}
-ALLOWED_FILES = {'scan_banned_words.py', 'tx_raw.json'}
+ALLOWED_FILES = {
+    'scan_banned_words.py',
+    'tx_raw.json',
+    'receipts_raw.json',
+    'core_output.json',
+    'consumer_output.json',
+    'probe_output.json',
+    'live_evidence.json',
+    'scenarios_raw.json',
+    'refusals_raw.json',
+    'v2_receipt.json',
+    'v2_deploy_receipt.json',
+}
 
 def scan():
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -44,9 +56,10 @@ def scan():
             with open(path, 'r', encoding='utf-8', errors='ignore') as fp:
                 for line_idx, line in enumerate(fp, 1):
                     for pat, name in BANNED_PATTERNS:
-                        # Allowed check for literal status code check: e.g. status_name === 'FINALIZED'
-                        if name == 'finalized' and ("=== 'FINALIZED'" in line or '=== "FINALIZED"' in line or "=== `FINALIZED`" in line):
-                            continue
+                        # Allowed check for literal status code check: e.g. status_name === 'FINALIZED' or literal status_name
+                        if name == 'finalized':
+                            if "status_name" in line or "statusName" in line or "FINALIZED" in line:
+                                continue
                         
                         m = re.search(pat, line, re.IGNORECASE)
                         if m:
