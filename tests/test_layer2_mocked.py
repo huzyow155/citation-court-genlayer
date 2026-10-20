@@ -8,13 +8,22 @@ from tests.helpers_for_test import (
     _extract_windows,
     _parse_model_output,
     _ground,
+    _combine,
+    _normalize_url_for_dedup,
     UserError,
     SCHEMA_VERSION,
     MAX_ATTEMPTS,
+    MAX_SOURCES,
     VERDICT_SUPPORTS,
     VERDICT_CONTRADICTS,
     VERDICT_NOT_ADDRESSED,
     VERDICT_UNREADABLE,
+    LABEL_UNJUDGED,
+    LABEL_DISPUTED,
+    LABEL_CONTRADICTED,
+    LABEL_CORROBORATED,
+    LABEL_SINGLE_SOURCE,
+    LABEL_UNSUPPORTED,
     DEFAULT_DISCOVERY_LIMIT,
     MAX_DISCOVERY_LIMIT,
     MIN_PAGE_CHARS,
@@ -173,6 +182,254 @@ class CitationCourtSim:
     def get_ruling(self, claim_id: str) -> str:
         cid = str(claim_id).strip()
         return self.rulings.get(cid, "")
+
+    def list_recent(self, limit: int = DEFAULT_DISCOVERY_LIMIT) -> str:
+        if "recent" not in self.meta:
+            return "[]"
+        ids = json.loads(self.meta["recent"])
+        bounded_limit = min(max(1, int(limit)), MAX_DISCOVERY_LIMIT)
+        return json.dumps(ids[:bounded_limit])
+
+    def list_by_author(self, author: str, limit: int = DEFAULT_DISCOVERY_LIMIT) -> str:
+        author_key = author.strip().lower()
+        if author_key not in self.by_author:
+            return "[]"
+        ids = json.loads(self.by_author[author_key])
+        bounded_limit = min(max(1, int(limit)), MAX_DISCOVERY_LIMIT)
+        return json.dumps(ids[:bounded_limit])
+
+    def latest_by_author(self, author: str) -> str:
+        author_key = author.strip().lower()
+        if author_key not in self.by_author:
+            return ""
+        ids = json.loads(self.by_author[author_key])
+        return ids[0] if ids else ""
+
+    def get_stats(self) -> str:
+        if "stats" not in self.meta:
+            return _canonical_json({
+                "total_claims": 0,
+                "total_judgments": 0,
+                "supports": 0,
+                "contradicts": 0,
+                "not_addressed": 0,
+                "unreadable": 0,
+            })
+        return self.meta["stats"]
+
+
+class CitationCourtV2Sim(CitationCourtSim):
+    """
+    Simulates CitationCourtV2 multi-source contract execution.
+    """
+    def __init__(self, mock_web_get_fn=None, mock_llm_fn=None):
+        super().__init__(mock_web_get_fn=mock_web_get_fn, mock_llm_fn=mock_llm_fn)
+        self.sources = {}
+
+    def lodge_claim(self, claim: str, source_url: str) -> str:
+        cid = super().lodge_claim(claim, source_url)
+        self.sources[cid] = _canonical_json([source_url])
+        return cid
+
+    def add_source(self, claim_id: str, source_url: str) -> str:
+        cid = str(claim_id).strip()
+        if cid not in self.claims:
+            raise UserError("unknown claim id")
+
+        claim_record = json.loads(self.claims[cid])
+        if self.sender.lower() != claim_record.get("author", "").lower():
+            raise UserError("only the claim author can add sources")
+
+        sources_list = []
+        if cid in self.sources:
+            try:
+                sources_list = json.loads(self.sources[cid])
+            except Exception:
+                sources_list = []
+
+        if len(sources_list) >= MAX_SOURCES:
+            raise UserError("source limit reached")
+
+        _validate_url(source_url)
+
+        norm_new = _normalize_url_for_dedup(source_url)
+        for s in sources_list:
+            if _normalize_url_for_dedup(s) == norm_new:
+                raise UserError("duplicate source")
+
+        sources_list.append(source_url)
+        self.sources[cid] = _canonical_json(sources_list)
+        return str(len(sources_list) - 1)
+
+    def judge_source(self, claim_id: str, index: int) -> str:
+        self._ensure_meta_init()
+        cid = str(claim_id).strip()
+        if cid not in self.claims:
+            raise UserError("unknown claim id")
+
+        try:
+            idx = int(index)
+        except Exception:
+            raise UserError("invalid source index")
+
+        if idx < 0:
+            raise UserError("invalid source index")
+
+        sources_list = []
+        if cid in self.sources:
+            try:
+                sources_list = json.loads(self.sources[cid])
+            except Exception:
+                sources_list = []
+
+        if idx >= len(sources_list):
+            raise UserError("invalid source index")
+
+        ruling_key = f"{cid}:{idx}"
+        existing_attempts = 0
+        if ruling_key in self.rulings:
+            existing_ruling = json.loads(self.rulings[ruling_key])
+            existing_verdict = existing_ruling.get("verdict", "")
+            existing_attempts = int(existing_ruling.get("attempts", 0))
+
+            if existing_verdict != VERDICT_UNREADABLE:
+                raise UserError("claim already judged")
+            if existing_attempts >= MAX_ATTEMPTS:
+                raise UserError("attempt limit reached")
+
+        claim_record = json.loads(self.claims[cid])
+        target_url = sources_list[idx]
+        claim_text = claim_record["claim"]
+
+        raw_body = ""
+        status_code = 0
+        try:
+            status_code, raw_body = self.mock_web_get_fn(target_url)
+        except Exception:
+            consensus_verdict = VERDICT_UNREADABLE
+        else:
+            if status_code != 200:
+                consensus_verdict = VERDICT_UNREADABLE
+            else:
+                clean_text = _clean_html(raw_body)
+                if len(clean_text) < MIN_PAGE_CHARS:
+                    consensus_verdict = VERDICT_UNREADABLE
+                else:
+                    prompt_page_context = _extract_windows(clean_text, claim_text)
+                    try:
+                        raw_model_out = self.mock_llm_fn(claim_text, prompt_page_context)
+                        model_verdict, model_quote = _parse_model_output(raw_model_out)
+                    except Exception:
+                        consensus_verdict = VERDICT_NOT_ADDRESSED
+                    else:
+                        consensus_verdict = _ground(model_verdict, model_quote, clean_text)
+
+        new_attempts = existing_attempts + 1
+        ruling_record = {
+            "attempts": str(new_attempts),
+            "claim_id": cid,
+            "index": str(idx),
+            "schema_version": "2",
+            "url": target_url,
+            "verdict": consensus_verdict,
+        }
+        self.rulings[ruling_key] = _canonical_json(ruling_record)
+
+        stats = json.loads(self.meta["stats"])
+        stats["total_judgments"] = stats.get("total_judgments", 0) + 1
+        if consensus_verdict == VERDICT_SUPPORTS:
+            stats["supports"] = stats.get("supports", 0) + 1
+        elif consensus_verdict == VERDICT_CONTRADICTS:
+            stats["contradicts"] = stats.get("contradicts", 0) + 1
+        elif consensus_verdict == VERDICT_NOT_ADDRESSED:
+            stats["not_addressed"] = stats.get("not_addressed", 0) + 1
+        elif consensus_verdict == VERDICT_UNREADABLE:
+            stats["unreadable"] = stats.get("unreadable", 0) + 1
+        self.meta["stats"] = _canonical_json(stats)
+
+        return consensus_verdict
+
+    def judge_claim(self, claim_id: str) -> str:
+        return self.judge_source(claim_id, 0)
+
+    def get_ruling(self, claim_id: str) -> str:
+        cid = str(claim_id).strip()
+        rk = f"{cid}:0"
+        if rk in self.rulings:
+            return self.rulings[rk]
+        return ""
+
+    def get_sources(self, claim_id: str) -> str:
+        cid = str(claim_id).strip()
+        if cid not in self.sources:
+            return "[]"
+        return self.sources[cid]
+
+    def get_source_ruling(self, claim_id: str, index: int) -> str:
+        cid = str(claim_id).strip()
+        try:
+            idx = int(index)
+        except Exception:
+            return ""
+        return self.rulings.get(f"{cid}:{idx}", "")
+
+    def get_corroboration(self, claim_id: str) -> str:
+        cid = str(claim_id).strip()
+        if cid not in self.claims:
+            return ""
+        sources_list = json.loads(self.sources.get(cid, "[]"))
+        verdicts = []
+        for idx in range(len(sources_list)):
+            rk = f"{cid}:{idx}"
+            if rk in self.rulings:
+                try:
+                    v = json.loads(self.rulings[rk]).get("verdict", "")
+                    if v:
+                        verdicts.append(v)
+                except Exception:
+                    pass
+        label = _combine(verdicts)
+        s = verdicts.count(VERDICT_SUPPORTS)
+        c = verdicts.count(VERDICT_CONTRADICTS)
+        n = verdicts.count(VERDICT_NOT_ADDRESSED)
+        u = verdicts.count(VERDICT_UNREADABLE)
+        data = {
+            "claim_id": cid,
+            "contradicts": c,
+            "judged_count": len(verdicts),
+            "label": label,
+            "not_addressed": n,
+            "supports": s,
+            "total_sources": len(sources_list),
+            "unreadable": u,
+        }
+        return _canonical_json(data)
+
+    def is_corroborated(self, claim_id: str, min_supports: int) -> str:
+        cid = str(claim_id).strip()
+        if cid not in self.claims:
+            return "false"
+        try:
+            k = int(min_supports)
+        except Exception:
+            return "false"
+        k = min(max(1, k), 3)
+        sources_list = json.loads(self.sources.get(cid, "[]"))
+        verdicts = []
+        for idx in range(len(sources_list)):
+            rk = f"{cid}:{idx}"
+            if rk in self.rulings:
+                try:
+                    v = json.loads(self.rulings[rk]).get("verdict", "")
+                    if v:
+                        verdicts.append(v)
+                except Exception:
+                    pass
+        s = verdicts.count(VERDICT_SUPPORTS)
+        c = verdicts.count(VERDICT_CONTRADICTS)
+        if c == 0 and s >= k:
+            return "true"
+        return "false"
 
     def list_recent(self, limit: int = DEFAULT_DISCOVERY_LIMIT) -> str:
         if "recent" not in self.meta:
@@ -396,6 +653,199 @@ class TestLayer2Mocked(unittest.TestCase):
         stats_after = json.loads(sim.get_stats())
         self.assertEqual(stats_after["total_judgments"], 1)
         self.assertEqual(stats_after["not_addressed"], 1)
+
+    def test_user_error_unknown_claim_id_v2(self):
+        sim = CitationCourtV2Sim()
+        with self.assertRaises(UserError) as cm1:
+            sim.add_source("999", "https://example.com/extra")
+        self.assertEqual(str(cm1.exception), "unknown claim id")
+
+        with self.assertRaises(UserError) as cm2:
+            sim.judge_source("999", 0)
+        self.assertEqual(str(cm2.exception), "unknown claim id")
+
+    def test_user_error_only_claim_author_can_add_sources(self):
+        sim = CitationCourtV2Sim()
+        sim.set_sender("0x1111111111111111111111111111111111111111")
+        cid = sim.lodge_claim("Author test claim with sufficient character length.", "https://example.com/orig")
+
+        sim.set_sender("0x2222222222222222222222222222222222222222")
+        with self.assertRaises(UserError) as cm:
+            sim.add_source(cid, "https://example.com/extra")
+        self.assertEqual(str(cm.exception), "only the claim author can add sources")
+
+    def test_user_error_source_limit_reached(self):
+        sim = CitationCourtV2Sim()
+        author = "0x1111111111111111111111111111111111111111"
+        sim.set_sender(author)
+        cid = sim.lodge_claim("Source limit claim test with sufficient length here.", "https://example.com/s0")
+
+        # Source 0 is initial url. Add source 1 and 2
+        idx1 = sim.add_source(cid, "https://example.com/s1")
+        self.assertEqual(idx1, "1")
+        idx2 = sim.add_source(cid, "https://example.com/s2")
+        self.assertEqual(idx2, "2")
+
+        # Adding 4th source (index 3) must raise "source limit reached"
+        with self.assertRaises(UserError) as cm:
+            sim.add_source(cid, "https://example.com/s3")
+        self.assertEqual(str(cm.exception), "source limit reached")
+
+    def test_user_error_duplicate_source_variations(self):
+        sim = CitationCourtV2Sim()
+        author = "0x1111111111111111111111111111111111111111"
+        sim.set_sender(author)
+        cid = sim.lodge_claim("Duplicate detection test claim with sufficient length.", "https://example.com/page")
+
+        # 1. Exact match
+        with self.assertRaises(UserError) as cm1:
+            sim.add_source(cid, "https://example.com/page")
+        self.assertEqual(str(cm1.exception), "duplicate source")
+
+        # 2. Case of host / scheme
+        with self.assertRaises(UserError) as cm2:
+            sim.add_source(cid, "HTTPS://EXAMPLE.COM/page")
+        self.assertEqual(str(cm2.exception), "duplicate source")
+
+        # 3. Trailing slash
+        with self.assertRaises(UserError) as cm3:
+            sim.add_source(cid, "https://example.com/page/")
+        self.assertEqual(str(cm3.exception), "duplicate source")
+
+        # 4. Fragment
+        with self.assertRaises(UserError) as cm4:
+            sim.add_source(cid, "https://example.com/page#section2")
+        self.assertEqual(str(cm4.exception), "duplicate source")
+
+    def test_user_error_invalid_source_index(self):
+        sim = CitationCourtV2Sim()
+        cid = sim.lodge_claim("Invalid index test claim with sufficient length here.", "https://example.com/orig")
+
+        with self.assertRaises(UserError) as cm1:
+            sim.judge_source(cid, -1)
+        self.assertEqual(str(cm1.exception), "invalid source index")
+
+        with self.assertRaises(UserError) as cm2:
+            sim.judge_source(cid, 1)
+        self.assertEqual(str(cm2.exception), "invalid source index")
+
+        with self.assertRaises(UserError) as cm3:
+            sim.judge_source(cid, "not_an_int")
+        self.assertEqual(str(cm3.exception), "invalid source index")
+
+    def test_v1_compat_judge_claim_equals_judge_source_0(self):
+        def mock_web(url):
+            return 200, self.sample_page
+
+        def mock_llm(claim, page):
+            return {
+                "verdict": "SUPPORTS",
+                "quote": "Revenue reached $14.2 million representing an increase of 42 percent",
+            }
+
+        sim = CitationCourtV2Sim(mock_web_get_fn=mock_web, mock_llm_fn=mock_llm)
+        cid = sim.lodge_claim("V1 compat test claim with sufficient character length.", "https://example.com/report")
+
+        # judge_claim must judge index 0
+        v = sim.judge_claim(cid)
+        self.assertEqual(v, VERDICT_SUPPORTS)
+
+        # Inspect ruling 0 via get_source_ruling and get_ruling
+        r0 = json.loads(sim.get_source_ruling(cid, 0))
+        self.assertEqual(r0["verdict"], VERDICT_SUPPORTS)
+        self.assertEqual(r0["index"], "0")
+        self.assertEqual(r0["schema_version"], "2")
+
+        r_v1 = json.loads(sim.get_ruling(cid))
+        self.assertEqual(r_v1["verdict"], VERDICT_SUPPORTS)
+
+    def test_corroboration_views_and_is_corroborated(self):
+        def mock_web(url):
+            return 200, self.sample_page
+
+        def mock_llm(claim, page):
+            if "contradict" in claim.lower():
+                return {
+                    "verdict": "CONTRADICTS",
+                    "quote": "Operating expenses were contained at $8.6 million leading to an operating margin",
+                }
+            return {
+                "verdict": "SUPPORTS",
+                "quote": "Revenue reached $14.2 million representing an increase of 42 percent",
+            }
+
+        sim = CitationCourtV2Sim(mock_web_get_fn=mock_web, mock_llm_fn=mock_llm)
+        author = "0x1111111111111111111111111111111111111111"
+        sim.set_sender(author)
+        cid = sim.lodge_claim("Revenue growth claim for corroboration test verification.", "https://example.com/s0")
+
+        # Initial state before judging: UNJUDGED
+        corrob_initial = json.loads(sim.get_corroboration(cid))
+        self.assertEqual(corrob_initial["label"], LABEL_UNJUDGED)
+        self.assertEqual(corrob_initial["judged_count"], 0)
+        self.assertEqual(corrob_initial["total_sources"], 1)
+        self.assertEqual(sim.is_corroborated(cid, 1), "false")
+
+        # Add second and third source
+        sim.add_source(cid, "https://example.com/s1")
+        sim.add_source(cid, "https://example.com/s2")
+
+        # Judge source 0 -> SUPPORTS
+        sim.judge_source(cid, 0)
+        corrob_1 = json.loads(sim.get_corroboration(cid))
+        self.assertEqual(corrob_1["label"], LABEL_SINGLE_SOURCE)
+        self.assertEqual(corrob_1["supports"], 1)
+        self.assertEqual(corrob_1["judged_count"], 1)
+        self.assertEqual(corrob_1["total_sources"], 3)
+        self.assertEqual(sim.is_corroborated(cid, 1), "true")
+        self.assertEqual(sim.is_corroborated(cid, 2), "false")
+
+        # Judge source 1 -> SUPPORTS
+        sim.judge_source(cid, 1)
+        corrob_2 = json.loads(sim.get_corroboration(cid))
+        self.assertEqual(corrob_2["label"], LABEL_CORROBORATED)
+        self.assertEqual(corrob_2["supports"], 2)
+        self.assertEqual(corrob_2["judged_count"], 2)
+        self.assertEqual(sim.is_corroborated(cid, 2), "true")
+        self.assertEqual(sim.is_corroborated(cid, 3), "false")
+
+    def test_user_errors_source_rejudge_and_attempts(self):
+        def mock_web_404(url):
+            return 404, "Not Found"
+
+        sim = CitationCourtV2Sim(mock_web_get_fn=mock_web_404)
+        cid = sim.lodge_claim("Attempts test on secondary source with sufficient length.", "https://example.com/s0")
+        sim.add_source(cid, "https://example.com/s1_404")
+
+        # 3 unreadable attempts on source index 1
+        for _ in range(3):
+            v = sim.judge_source(cid, 1)
+            self.assertEqual(v, VERDICT_UNREADABLE)
+
+        # 4th attempt must fail with "attempt limit reached"
+        with self.assertRaises(UserError) as cm1:
+            sim.judge_source(cid, 1)
+        self.assertEqual(str(cm1.exception), "attempt limit reached")
+
+        # Now test "claim already judged" on a successfully judged secondary source
+        def mock_web_ok(url):
+            return 200, self.sample_page
+
+        def mock_llm_ok(claim, page):
+            return {"verdict": "SUPPORTS", "quote": "Revenue reached $14.2 million representing an increase of 42 percent"}
+
+        sim_ok = CitationCourtV2Sim(mock_web_get_fn=mock_web_ok, mock_llm_fn=mock_llm_ok)
+        cid2 = sim_ok.lodge_claim("Rejudge test on secondary source with sufficient length.", "https://example.com/s0")
+        sim_ok.add_source(cid2, "https://example.com/s1_ok")
+
+        v_ok = sim_ok.judge_source(cid2, 1)
+        self.assertEqual(v_ok, VERDICT_SUPPORTS)
+
+        with self.assertRaises(UserError) as cm2:
+            sim_ok.judge_source(cid2, 1)
+        self.assertEqual(str(cm2.exception), "claim already judged")
+
+
 
 
 if __name__ == "__main__":

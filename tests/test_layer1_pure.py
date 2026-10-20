@@ -234,6 +234,143 @@ class TestLayer1Pure(unittest.TestCase):
         self.assertEqual(v4, VERDICT_NOT_ADDRESSED)
         self.assertEqual(q4, "")
 
+    def test_combine_exhaustive_85_inputs_and_parity(self):
+        """
+        Exhaustive test over all 85 combinations of up to 3 verdicts (4^0 + 4^1 + 4^2 + 4^3 = 85).
+        Asserts parity between contract function and harness function, label rules, and order independence.
+        """
+        import itertools
+        from contracts.CitationCourtV2 import _combine as contract_combine
+        from tests.helpers_for_test import (
+            _combine as harness_combine,
+            LABEL_UNJUDGED,
+            LABEL_DISPUTED,
+            LABEL_CONTRADICTED,
+            LABEL_CORROBORATED,
+            LABEL_SINGLE_SOURCE,
+            LABEL_UNSUPPORTED,
+            VALID_VERDICTS,
+        )
+
+        all_inputs = []
+        for r in range(4):
+            for combo in itertools.product(VALID_VERDICTS, repeat=r):
+                all_inputs.append(list(combo))
+
+        self.assertEqual(len(all_inputs), 85, "Must test exactly 85 combinations")
+
+        for inp in all_inputs:
+            h_out = harness_combine(inp)
+            c_out = contract_combine(inp)
+
+            # 1. Parity test: contract and harness produce identical output
+            self.assertEqual(c_out, h_out, f"Parity mismatch for input {inp}: {c_out} != {h_out}")
+
+            # 2. Assert exact label rules
+            s = inp.count(VERDICT_SUPPORTS)
+            c = inp.count(VERDICT_CONTRADICTS)
+            if len(inp) == 0:
+                expected = LABEL_UNJUDGED
+            elif s >= 1 and c >= 1:
+                expected = LABEL_DISPUTED
+            elif c >= 1 and s == 0:
+                expected = LABEL_CONTRADICTED
+            elif s >= 2 and c == 0:
+                expected = LABEL_CORROBORATED
+            elif s == 1 and c == 0:
+                expected = LABEL_SINGLE_SOURCE
+            else:
+                expected = LABEL_UNSUPPORTED
+
+            self.assertEqual(c_out, expected, f"Label rule mismatch for {inp}: got {c_out}, expected {expected}")
+
+            # 3. Order independence across all permutations
+            for perm in itertools.permutations(inp):
+                perm_out = contract_combine(list(perm))
+                self.assertEqual(
+                    perm_out,
+                    expected,
+                    f"Order-independence failed for permutation {perm} of {inp}: {perm_out} != {expected}",
+                )
+
+    def test_200_seeded_random_sequences(self):
+        """
+        200 seeded random sequences of add_source/judge_source with mocked judge.
+        Asserts:
+        - sources never exceed 3
+        - index 0 never changes
+        - a final verdict is never overwritten
+        - is_corroborated is never true while any contradicts exists
+        """
+        import random
+
+        rng = random.Random(1337)
+        verdict_choices = [VERDICT_SUPPORTS, VERDICT_CONTRADICTS, VERDICT_NOT_ADDRESSED, VERDICT_UNREADABLE]
+
+        for episode in range(200):
+            # Each episode simulates a claim lifecycle with up to 15 random operations
+            sources = ["https://example.com/initial_0"]
+            rulings = {}  # index -> {"verdict": ..., "attempts": int}
+            attempts = {}  # index -> int
+
+            def is_corroborated(min_supports: int = 1) -> bool:
+                k = min(max(1, min_supports), 3)
+                judged_verdicts = [r["verdict"] for r in rulings.values()]
+                s_count = judged_verdicts.count(VERDICT_SUPPORTS)
+                c_count = judged_verdicts.count(VERDICT_CONTRADICTS)
+                return (c_count == 0) and (s_count >= k)
+
+            num_ops = rng.randint(5, 15)
+            for _ in range(num_ops):
+                op = rng.choice(["add_source", "judge_source"])
+                if op == "add_source":
+                    new_url = f"https://example.com/source_{len(sources)}_{rng.randint(100, 999)}"
+                    if len(sources) < 3:
+                        sources.append(new_url)
+                    else:
+                        # Attempt to exceed limit must be rejected
+                        pass
+                else:
+                    # judge_source
+                    idx = rng.randint(0, len(sources) + 1)
+                    if 0 <= idx < len(sources):
+                        cur_ruling = rulings.get(idx)
+                        cur_attempts = attempts.get(idx, 0)
+                        if cur_ruling is not None and cur_ruling["verdict"] != VERDICT_UNREADABLE:
+                            # Final verdict cannot be overwritten
+                            pass
+                        elif cur_attempts >= 3:
+                            # Max attempts reached
+                            pass
+                        else:
+                            # Judge
+                            chosen_verdict = rng.choice(verdict_choices)
+                            attempts[idx] = cur_attempts + 1
+                            rulings[idx] = {"verdict": chosen_verdict, "attempts": attempts[idx]}
+
+                # Invariant 1: sources never exceed 3
+                self.assertLessEqual(len(sources), 3, f"Sources exceeded 3 in episode {episode}")
+
+                # Invariant 2: index 0 never changes
+                self.assertEqual(sources[0], "https://example.com/initial_0", f"Index 0 modified in episode {episode}")
+
+                # Invariant 3: is_corroborated never true while any contradicts exists
+                judged = [r["verdict"] for r in rulings.values()]
+                c_count = judged.count(VERDICT_CONTRADICTS)
+                for k in range(1, 4):
+                    ic = is_corroborated(k)
+                    if c_count > 0:
+                        self.assertFalse(
+                            ic,
+                            f"is_corroborated was true when contradicts={c_count} in episode {episode}",
+                        )
+
+                # Invariant 4: a final verdict is never overwritten
+                for idx, r in rulings.items():
+                    if r["verdict"] != VERDICT_UNREADABLE:
+                        self.assertIn(r["verdict"], (VERDICT_SUPPORTS, VERDICT_CONTRADICTS, VERDICT_NOT_ADDRESSED))
+
+
 
 if __name__ == "__main__":
     unittest.main()

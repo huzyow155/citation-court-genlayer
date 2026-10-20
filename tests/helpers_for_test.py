@@ -4,8 +4,11 @@ import html as html_lib
 import re
 import urllib.parse
 import ipaddress
+import sys
+import types
 
 SCHEMA_VERSION = "1"
+SCHEMA_VERSION_V2 = "2"
 MAX_CLAIM_LEN = 400
 MIN_CLAIM_LEN = 20
 MAX_URL_LEN = 300
@@ -17,6 +20,7 @@ MAX_CLEAN_TEXT_LEN = 8000
 MAX_ATTEMPTS = 3
 MAX_DISCOVERY_LIMIT = 20
 DEFAULT_DISCOVERY_LIMIT = 10
+MAX_SOURCES = 3
 
 VERDICT_SUPPORTS = "SUPPORTS"
 VERDICT_CONTRADICTS = "CONTRADICTS"
@@ -24,9 +28,62 @@ VERDICT_NOT_ADDRESSED = "NOT_ADDRESSED"
 VERDICT_UNREADABLE = "UNREADABLE"
 VALID_VERDICTS = (VERDICT_SUPPORTS, VERDICT_CONTRADICTS, VERDICT_NOT_ADDRESSED, VERDICT_UNREADABLE)
 
+LABEL_UNJUDGED = "UNJUDGED"
+LABEL_DISPUTED = "DISPUTED"
+LABEL_CONTRADICTED = "CONTRADICTED"
+LABEL_CORROBORATED = "CORROBORATED"
+LABEL_SINGLE_SOURCE = "SINGLE_SOURCE"
+LABEL_UNSUPPORTED = "UNSUPPORTED"
+
 
 class UserError(Exception):
     pass
+
+
+# Install mock genlayer module in sys.modules if not available
+if "genlayer" not in sys.modules:
+    gl = types.ModuleType("genlayer")
+    gl.gl = gl
+    gl.Contract = object
+    gl.TreeMap = dict
+    gl.public = types.SimpleNamespace(write=lambda f: f, view=lambda f: f)
+    gl.vm = types.SimpleNamespace(UserError=UserError)
+    gl.message = types.SimpleNamespace(sender_address=types.SimpleNamespace(as_hex="0x88e9a06a57ebb9D7Bf3A7137e14D268EB6dd916D"))
+    gl.eq_principle = types.SimpleNamespace(strict_eq=lambda f: f())
+    gl.nondet = types.SimpleNamespace(
+        web=types.SimpleNamespace(get=lambda url: None),
+        exec_prompt=lambda p: None,
+    )
+    sys.modules["genlayer"] = gl
+
+
+def _combine(verdicts: list) -> str:
+    """Harness offline copy of _combine."""
+    if not verdicts:
+        return LABEL_UNJUDGED
+    s = verdicts.count(VERDICT_SUPPORTS)
+    c = verdicts.count(VERDICT_CONTRADICTS)
+    if s >= 1 and c >= 1:
+        return LABEL_DISPUTED
+    if c >= 1 and s == 0:
+        return LABEL_CONTRADICTED
+    if s >= 2 and c == 0:
+        return LABEL_CORROBORATED
+    if s == 1 and c == 0:
+        return LABEL_SINGLE_SOURCE
+    return LABEL_UNSUPPORTED
+
+
+def _normalize_url_for_dedup(url: str) -> str:
+    """Normalize URL for duplicate detection: lowercase scheme and host, strip trailing slash and fragment."""
+    parsed = urllib.parse.urlsplit(url)
+    scheme = parsed.scheme.lower()
+    netloc = parsed.netloc.lower()
+    path = parsed.path.rstrip("/")
+    query = parsed.query
+    clean_parts = (scheme, netloc, path, query, "")
+    return urllib.parse.urlunsplit(clean_parts)
+
 
 
 def _canonical_json(data) -> str:
