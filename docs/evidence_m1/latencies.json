@@ -1,0 +1,226 @@
+{
+  "lodge": [
+    {
+      "fn": "lodge_claim",
+      "label": "Scenario (a) Lodge",
+      "elapsed": 5.385,
+      "txHash": "0x87c23a8764d1f34ee273a386cdac1767cfcbc531d98abbe7fdb8b09ec2f8242e"
+    },
+    {
+      "fn": "lodge_claim",
+      "label": "Scenario (b) Lodge",
+      "elapsed": 5.467,
+      "txHash": "0x84c5c40b9383ca2d12d4ffc694a05ea8166831707d40e37b47c98f558e5f824a"
+    },
+    {
+      "fn": "lodge_claim",
+      "label": "Scenario (c) Lodge",
+      "elapsed": 5.412,
+      "txHash": "0x5a180e3badafc8e5e6ff73de507df0e7af01a831d27caaf8bc16979cd912e540"
+    },
+    {
+      "fn": "lodge_claim",
+      "label": "Scenario (d) Lodge",
+      "elapsed": 8.721,
+      "txHash": "0x0e00a8447b0a75315fa46fb8f8891829be1aa8184241d6b270b23bd9d7576512"
+    },
+    {
+      "fn": "lodge_claim",
+      "label": "Scenario (e) Lodge",
+      "elapsed": 8.816,
+      "txHash": "0x4cff2f89179db3676a6e4583494a56219990cc3bf3de1df8f837e8f2a6605729"
+    },
+    {
+      "fn": "lodge_claim",
+      "label": "Scenario (f) Lodge",
+      "elapsed": 8.692,
+      "txHash": "0x547d9658f558c0a2bdcca3a9eef6ac9ac0878c7b5d058c671560f7175e543ff2"
+    },
+    {
+      "fn": "lodge_claim",
+      "label": "Scenario (g) Lodge",
+      "elapsed": 5.398,
+      "txHash": "0x7889187d7348c3a0aacbc13985dce7c14cf2cc950298447f342bd742ba23f073"
+    },
+    {
+      "fn": "lodge_claim",
+      "label": "Scenario (b) Lodge",
+      "elapsed": 6.346,
+      "txHash": "0xdcf6b21f7228a7f8a2f981e883f08f53335d79b9a4a63e63903f82682de1b09f"
+    },
+    {
+      "fn": "lodge_claim",
+      "label": "Scenario (d) Lodge",
+      "elapsed": 5.616,
+      "txHash": "0x2557142574ce5bc6a95356ea65457b49d84f656ef704b94354bb653f65c5431b"
+    },
+    {
+      "fn": "lodge_claim",
+      "label": "Scenario (f) Lodge",
+      "elapsed": 12.266,
+      "txHash": "0xfab70c50d5bda6bd527b664029e79207ff61cc77bca135eae72cbb212842251a"
+    }
+  ],
+  "add_source": [
+    {
+      "fn": "add_source",
+      "label": "Scenario (a) Add Source 1",
+      "elapsed": 8.908,
+      "txHash": "0x8463946e1de47cd91c85ecc6aef84d0cdd46787e06679786c00ea5fe6b0401cd"
+    },
+    {
+      "fn": "add_source",
+      "label": "Scenario (b) Add Source 1",
+      "elapsed": 5.287,
+      "txHash": "0x82d43165597a14913d4d90b2ae51eb7d54fd6788ddbabef445b6d0e02701f019"
+    },
+    {
+      "fn": "add_source",
+      "label": "Scenario (e) Add Source 1 (short)",
+      "elapsed": 5.329,
+      "txHash": "0x785695cd0fd462ba2c5e9c912c428eddbc806d14863a6335b4768592c6f07959"
+    },
+    {
+      "fn": "add_source",
+      "label": "Scenario (f) Add Source 1",
+      "elapsed": 5.268,
+      "txHash": "0x79d0468ec4926d02de4d56a1d97c644a0d3d00af3186bfa5f137bd5a0a2cb56b"
+    },
+    {
+      "fn": "add_source",
+      "label": "Scenario (f) Add Source 2",
+      "elapsed": 5.393,
+      "txHash": "0x636316837ec0f0ebe9b9423323aa88724583441df2812cb9f73914d72f417b6d"
+    },
+    {
+      "fn": "add_source",
+      "label": "Scenario (g) Add Source 1",
+      "elapsed": 8.684,
+      "txHash": "0xe5e777d2619e612187f6b30882258faa009c3ccb329f39c851e012e8a8275092"
+    },
+    {
+      "fn": "add_source",
+      "label": "Scenario (b) Add Source 1 (contradicts)",
+      "elapsed": 5.55,
+      "txHash": "0xd6edf58acaa5a6d28f7ff192c777b0d06b9137b7c6fc172af8f4f2d587e8cc59"
+    },
+    {
+      "fn": "add_source",
+      "label": "Scenario (f) Add Source 1 (supports2)",
+      "elapsed": 5.487,
+      "txHash": "0x71dc73ecce69144b799f7588a22a0dbd26a5bbf75ab67c59266c9e9016c2305a"
+    },
+    {
+      "fn": "add_source",
+      "label": "Scenario (f) Add Source 2 (contradicts)",
+      "elapsed": 5.506,
+      "txHash": "0xa2dba9e3cbd17c48d4676de3ffdfec305653766b1b7648450381c68075198379"
+    }
+  ],
+  "judge_source_llm": [
+    {
+      "fn": "judge_source",
+      "label": "Scenario (a) Judge Source 0 (SUPPORTS)",
+      "elapsed": 18.825,
+      "txHash": "0xbba19254bf440859cfc47a8e95dc9b0b04f3524601b9cf07f1fc86159d83d9ce"
+    },
+    {
+      "fn": "judge_source",
+      "label": "Scenario (a) Judge Source 1 (SUPPORTS)",
+      "elapsed": 15.493,
+      "txHash": "0x4e4e0c7c5fb5d11ae232923bf93ea79e3bb63439e2696a24cc863e5e2d6af32b"
+    },
+    {
+      "fn": "judge_source",
+      "label": "Scenario (b) Judge Source 0 (SUPPORTS)",
+      "elapsed": 18.737,
+      "txHash": "0xa3b0733030e533af1ac24b0c56907f78bcac1a120ad10ade0ef2b08661435012"
+    },
+    {
+      "fn": "judge_source",
+      "label": "Scenario (b) Judge Source 1 (CONTRADICTS)",
+      "elapsed": 15.521,
+      "txHash": "0x250140adb63c6e22bb3436fd39a5dd3ee7c1b4ba53c35ce24337a164cb68cdc5"
+    },
+    {
+      "fn": "judge_source",
+      "label": "Scenario (c) Judge Source 0 (SUPPORTS)",
+      "elapsed": 19.25,
+      "txHash": "0x32d5a7778f4dd433249e41ef6850144e363f3cc2609ed7b5c2a6a20d8090e49b"
+    },
+    {
+      "fn": "judge_source",
+      "label": "Scenario (d) Judge Source 0 (CONTRADICTS)",
+      "elapsed": 15.755,
+      "txHash": "0x5c723aeb2f4f1c98bd7d08d578311438a65f8dec332418d7175eeda8457c74e8"
+    },
+    {
+      "fn": "judge_source",
+      "label": "Scenario (e) Judge Source 0 (NOT_ADDRESSED)",
+      "elapsed": 22.219,
+      "txHash": "0xfa7119181f7accb70e2af788a0ab34e8bb784b515d87e617f436db449fe873aa"
+    },
+    {
+      "fn": "judge_source",
+      "label": "Scenario (f) Judge Source 0 (SUPPORTS)",
+      "elapsed": 15.712,
+      "txHash": "0x0dec28f3290571a17f0f544c5ce624e581b32db8ead8a8ae3b3535914998e3e4"
+    },
+    {
+      "fn": "judge_source",
+      "label": "Scenario (f) Judge Source 1 (SUPPORTS)",
+      "elapsed": 19.05,
+      "txHash": "0x3875a3d793a9169d0bf01ddb4819f7ed482c5b4d823dba5dd50331eb9b7b2eb5"
+    },
+    {
+      "fn": "judge_source",
+      "label": "Scenario (f) Judge Source 2 (CONTRADICTS)",
+      "elapsed": 15.293,
+      "txHash": "0x8315d7f6465e6f5fef8662c96df921d8b852ef3a60e67a795f018473d3449714"
+    },
+    {
+      "fn": "judge_source",
+      "label": "Scenario (b) Judge Source 0 (SUPPORTS)",
+      "elapsed": 12.328,
+      "txHash": "0x6d58da253dfc07e96a83fb1167061e42ac20fc7145a2ee994bf5cbe54c9120eb"
+    },
+    {
+      "fn": "judge_source",
+      "label": "Scenario (b) Judge Source 1 (CONTRADICTS)",
+      "elapsed": 15.711,
+      "txHash": "0xda97834940449111367107ffc845f590d4170798d10c6d5f6aa06ae22fa74044"
+    },
+    {
+      "fn": "judge_source",
+      "label": "Scenario (d) Judge Source 0 (CONTRADICTS)",
+      "elapsed": 12.228,
+      "txHash": "0x16e519c4f601265234a3336f0444a0646d14406f11bd7d021e99b0219ac16ae3"
+    },
+    {
+      "fn": "judge_source",
+      "label": "Scenario (f) Judge Source 0 (SUPPORTS)",
+      "elapsed": 15.545,
+      "txHash": "0x8493c74eceb41075e44505e38277fbbc92595e988a5c27fada104f7edb9de37c"
+    },
+    {
+      "fn": "judge_source",
+      "label": "Scenario (f) Judge Source 1 (SUPPORTS)",
+      "elapsed": 15.695,
+      "txHash": "0x633e599cb757a3d14037bb6b0128247c53318545ef0c2a2047edfe8049005a1f"
+    },
+    {
+      "fn": "judge_source",
+      "label": "Scenario (f) Judge Source 2 (CONTRADICTS)",
+      "elapsed": 12.28,
+      "txHash": "0x3a9612f46a735264430b408804db5f47645728f7c4d9e779c98250cd7429022e"
+    }
+  ],
+  "judge_source_unreadable": [
+    {
+      "fn": "judge_source",
+      "label": "Scenario (e) Judge Source 1 (UNREADABLE)",
+      "elapsed": 8.738,
+      "txHash": "0xd9ad6e54e4d75c63dfc57cb879466e5aac0a4bf89590e451d402fa5be915e23d"
+    }
+  ]
+}

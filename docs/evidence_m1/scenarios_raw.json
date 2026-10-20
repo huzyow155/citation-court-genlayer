@@ -1,0 +1,314 @@
+{
+  "a": {
+    "scenario": "a",
+    "expected": "CORROBORATED",
+    "claim_id": "1",
+    "sources": [
+      "https://raw.githubusercontent.com/huzyow155/citation-court-genlayer/main/fixtures/supports.md",
+      "https://cdn.jsdelivr.net/gh/huzyow155/citation-court-genlayer@63efe26/fixtures/supports2.md"
+    ],
+    "txs": {
+      "lodge": "0x87c23a8764d1f34ee273a386cdac1767cfcbc531d98abbe7fdb8b09ec2f8242e",
+      "add_source": "0x8463946e1de47cd91c85ecc6aef84d0cdd46787e06679786c00ea5fe6b0401cd",
+      "judge_0": "0xbba19254bf440859cfc47a8e95dc9b0b04f3524601b9cf07f1fc86159d83d9ce",
+      "judge_1": "0x4e4e0c7c5fb5d11ae232923bf93ea79e3bb63439e2696a24cc863e5e2d6af32b"
+    },
+    "triples": {
+      "lodge": {
+        "status_name": "ACCEPTED",
+        "result_name": "MAJORITY_AGREE",
+        "execution_result": "SUCCESS"
+      },
+      "add_source": {
+        "status_name": "ACCEPTED",
+        "result_name": "MAJORITY_AGREE",
+        "execution_result": "SUCCESS"
+      },
+      "judge_0": {
+        "status_name": "ACCEPTED",
+        "result_name": "MAJORITY_AGREE",
+        "execution_result": "SUCCESS"
+      },
+      "judge_1": {
+        "status_name": "ACCEPTED",
+        "result_name": "MAJORITY_AGREE",
+        "execution_result": "SUCCESS"
+      }
+    },
+    "corroboration": {
+      "claim_id": "1",
+      "contradicts": 0,
+      "judged_count": 2,
+      "label": "CORROBORATED",
+      "not_addressed": 0,
+      "supports": 2,
+      "total_sources": 2,
+      "unreadable": 0
+    },
+    "is_corroborated": "true"
+  },
+  "b": {
+    "scenario": "b",
+    "expected": "DISPUTED",
+    "claim_id": "8",
+    "sources": [
+      "https://raw.githubusercontent.com/huzyow155/citation-court-genlayer/main/fixtures/supports.md",
+      "https://raw.githubusercontent.com/huzyow155/citation-court-genlayer/main/fixtures/contradicts.md"
+    ],
+    "txs": {
+      "lodge": "0xdcf6b21f7228a7f8a2f981e883f08f53335d79b9a4a63e63903f82682de1b09f",
+      "add_source": "0xd6edf58acaa5a6d28f7ff192c777b0d06b9137b7c6fc172af8f4f2d587e8cc59",
+      "judge_0": "0x6d58da253dfc07e96a83fb1167061e42ac20fc7145a2ee994bf5cbe54c9120eb",
+      "judge_1": "0xda97834940449111367107ffc845f590d4170798d10c6d5f6aa06ae22fa74044"
+    },
+    "triples": {
+      "lodge": {
+        "status_name": "ACCEPTED",
+        "result_name": "MAJORITY_AGREE",
+        "execution_result": "SUCCESS"
+      },
+      "add_source": {
+        "status_name": "ACCEPTED",
+        "result_name": "MAJORITY_AGREE",
+        "execution_result": "SUCCESS"
+      },
+      "judge_0": {
+        "status_name": "ACCEPTED",
+        "result_name": "MAJORITY_AGREE",
+        "execution_result": "SUCCESS"
+      },
+      "judge_1": {
+        "status_name": "ACCEPTED",
+        "result_name": "MAJORITY_AGREE",
+        "execution_result": "SUCCESS"
+      }
+    },
+    "corroboration": {
+      "claim_id": "8",
+      "contradicts": 1,
+      "judged_count": 2,
+      "label": "DISPUTED",
+      "not_addressed": 0,
+      "supports": 1,
+      "total_sources": 2,
+      "unreadable": 0
+    },
+    "is_corroborated": "false"
+  },
+  "c": {
+    "scenario": "c",
+    "expected": "SINGLE_SOURCE",
+    "claim_id": "3",
+    "sources": [
+      "https://raw.githubusercontent.com/huzyow155/citation-court-genlayer/main/fixtures/supports.md"
+    ],
+    "txs": {
+      "lodge": "0x5a180e3badafc8e5e6ff73de507df0e7af01a831d27caaf8bc16979cd912e540",
+      "judge_0": "0x32d5a7778f4dd433249e41ef6850144e363f3cc2609ed7b5c2a6a20d8090e49b"
+    },
+    "triples": {
+      "lodge": {
+        "status_name": "ACCEPTED",
+        "result_name": "MAJORITY_AGREE",
+        "execution_result": "SUCCESS"
+      },
+      "judge_0": {
+        "status_name": "ACCEPTED",
+        "result_name": "MAJORITY_AGREE",
+        "execution_result": "SUCCESS"
+      }
+    },
+    "corroboration": {
+      "claim_id": "3",
+      "contradicts": 0,
+      "judged_count": 1,
+      "label": "SINGLE_SOURCE",
+      "not_addressed": 0,
+      "supports": 1,
+      "total_sources": 1,
+      "unreadable": 0
+    },
+    "is_corroborated_1": "true",
+    "is_corroborated_2": "false"
+  },
+  "d": {
+    "scenario": "d",
+    "expected": "CONTRADICTED",
+    "claim_id": "9",
+    "sources": [
+      "https://raw.githubusercontent.com/huzyow155/citation-court-genlayer/main/fixtures/contradicts.md"
+    ],
+    "txs": {
+      "lodge": "0x2557142574ce5bc6a95356ea65457b49d84f656ef704b94354bb653f65c5431b",
+      "judge_0": "0x16e519c4f601265234a3336f0444a0646d14406f11bd7d021e99b0219ac16ae3"
+    },
+    "triples": {
+      "lodge": {
+        "status_name": "ACCEPTED",
+        "result_name": "MAJORITY_AGREE",
+        "execution_result": "SUCCESS"
+      },
+      "judge_0": {
+        "status_name": "ACCEPTED",
+        "result_name": "MAJORITY_AGREE",
+        "execution_result": "SUCCESS"
+      }
+    },
+    "corroboration": {
+      "claim_id": "9",
+      "contradicts": 1,
+      "judged_count": 1,
+      "label": "CONTRADICTED",
+      "not_addressed": 0,
+      "supports": 0,
+      "total_sources": 1,
+      "unreadable": 0
+    },
+    "is_corroborated": "false"
+  },
+  "e": {
+    "scenario": "e",
+    "expected": "UNSUPPORTED",
+    "claim_id": "5",
+    "sources": [
+      "https://raw.githubusercontent.com/huzyow155/citation-court-genlayer/main/fixtures/injection.md",
+      "https://raw.githubusercontent.com/huzyow155/citation-court-genlayer/main/fixtures/short.md"
+    ],
+    "txs": {
+      "lodge": "0x4cff2f89179db3676a6e4583494a56219990cc3bf3de1df8f837e8f2a6605729",
+      "add_source": "0x785695cd0fd462ba2c5e9c912c428eddbc806d14863a6335b4768592c6f07959",
+      "judge_0": "0xfa7119181f7accb70e2af788a0ab34e8bb784b515d87e617f436db449fe873aa",
+      "judge_1": "0xd9ad6e54e4d75c63dfc57cb879466e5aac0a4bf89590e451d402fa5be915e23d"
+    },
+    "triples": {
+      "lodge": {
+        "status_name": "ACCEPTED",
+        "result_name": "MAJORITY_AGREE",
+        "execution_result": "SUCCESS"
+      },
+      "add_source": {
+        "status_name": "ACCEPTED",
+        "result_name": "MAJORITY_AGREE",
+        "execution_result": "SUCCESS"
+      },
+      "judge_0": {
+        "status_name": "ACCEPTED",
+        "result_name": "MAJORITY_AGREE",
+        "execution_result": "SUCCESS"
+      },
+      "judge_1": {
+        "status_name": "ACCEPTED",
+        "result_name": "MAJORITY_AGREE",
+        "execution_result": "SUCCESS"
+      }
+    },
+    "corroboration": {
+      "claim_id": "5",
+      "contradicts": 0,
+      "judged_count": 2,
+      "label": "UNSUPPORTED",
+      "not_addressed": 1,
+      "supports": 0,
+      "total_sources": 2,
+      "unreadable": 1
+    },
+    "is_corroborated": "false"
+  },
+  "f": {
+    "scenario": "f",
+    "expected": "DISPUTED",
+    "claim_id": "10",
+    "sources": [
+      "https://raw.githubusercontent.com/huzyow155/citation-court-genlayer/main/fixtures/supports.md",
+      "https://cdn.jsdelivr.net/gh/huzyow155/citation-court-genlayer@63efe26/fixtures/supports2.md",
+      "https://raw.githubusercontent.com/huzyow155/citation-court-genlayer/main/fixtures/contradicts.md"
+    ],
+    "txs": {
+      "lodge": "0xfab70c50d5bda6bd527b664029e79207ff61cc77bca135eae72cbb212842251a",
+      "add_source_1": "0x71dc73ecce69144b799f7588a22a0dbd26a5bbf75ab67c59266c9e9016c2305a",
+      "add_source_2": "0xa2dba9e3cbd17c48d4676de3ffdfec305653766b1b7648450381c68075198379",
+      "judge_0": "0x8493c74eceb41075e44505e38277fbbc92595e988a5c27fada104f7edb9de37c",
+      "judge_1": "0x633e599cb757a3d14037bb6b0128247c53318545ef0c2a2047edfe8049005a1f",
+      "judge_2": "0x3a9612f46a735264430b408804db5f47645728f7c4d9e779c98250cd7429022e"
+    },
+    "triples": {
+      "lodge": {
+        "status_name": "ACCEPTED",
+        "result_name": "MAJORITY_AGREE",
+        "execution_result": "SUCCESS"
+      },
+      "add_source_1": {
+        "status_name": "ACCEPTED",
+        "result_name": "MAJORITY_AGREE",
+        "execution_result": "SUCCESS"
+      },
+      "add_source_2": {
+        "status_name": "ACCEPTED",
+        "result_name": "MAJORITY_AGREE",
+        "execution_result": "SUCCESS"
+      },
+      "judge_0": {
+        "status_name": "ACCEPTED",
+        "result_name": "MAJORITY_AGREE",
+        "execution_result": "SUCCESS"
+      },
+      "judge_1": {
+        "status_name": "ACCEPTED",
+        "result_name": "MAJORITY_AGREE",
+        "execution_result": "SUCCESS"
+      },
+      "judge_2": {
+        "status_name": "ACCEPTED",
+        "result_name": "MAJORITY_AGREE",
+        "execution_result": "SUCCESS"
+      }
+    },
+    "corroboration": {
+      "claim_id": "10",
+      "contradicts": 1,
+      "judged_count": 3,
+      "label": "DISPUTED",
+      "not_addressed": 0,
+      "supports": 2,
+      "total_sources": 3,
+      "unreadable": 0
+    },
+    "is_corroborated": "false"
+  },
+  "g": {
+    "scenario": "g",
+    "expected": "UNJUDGED",
+    "claim_id": "7",
+    "sources": [
+      "https://raw.githubusercontent.com/huzyow155/citation-court-genlayer/main/fixtures/supports.md",
+      "https://cdn.jsdelivr.net/gh/huzyow155/citation-court-genlayer@63efe26/fixtures/supports2.md"
+    ],
+    "txs": {
+      "lodge": "0x7889187d7348c3a0aacbc13985dce7c14cf2cc950298447f342bd742ba23f073",
+      "add_source": "0xe5e777d2619e612187f6b30882258faa009c3ccb329f39c851e012e8a8275092"
+    },
+    "triples": {
+      "lodge": {
+        "status_name": "ACCEPTED",
+        "result_name": "MAJORITY_AGREE",
+        "execution_result": "SUCCESS"
+      },
+      "add_source": {
+        "status_name": "ACCEPTED",
+        "result_name": "MAJORITY_AGREE",
+        "execution_result": "SUCCESS"
+      }
+    },
+    "corroboration": {
+      "claim_id": "7",
+      "contradicts": 0,
+      "judged_count": 0,
+      "label": "UNJUDGED",
+      "not_addressed": 0,
+      "supports": 0,
+      "total_sources": 2,
+      "unreadable": 0
+    },
+    "is_corroborated": "false"
+  }
+}
