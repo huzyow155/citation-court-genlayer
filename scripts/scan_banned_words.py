@@ -36,6 +36,7 @@ ALLOWED_FILES = {
     'refusals_raw.json',
     'v2_receipt.json',
     'v2_deploy_receipt.json',
+    'first_attempt_near_miss.json',
 }
 
 def scan():

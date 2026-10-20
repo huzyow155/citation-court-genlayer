@@ -5,6 +5,27 @@ All notable changes to the Citation Court protocol contracts will be documented 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2026-10-20: Milestone 1 Evidence Record Refinement
+
+### Fixed
+- **Real On-Chain Robustness Evaluation**:
+  - Removed mock robustness script (`scripts/test_robustness_supports2.py`) which did not query validators.
+  - Pre-registered formal evaluation criteria and pass rule in `docs/M1_ROBUSTNESS_EXPECTED.md` prior to chain execution.
+  - Executed 10 fresh on-chain claims against deployed `CitationCourtV2` on GenLayer Studionet evaluating `fixtures/supports2.md`.
+  - Achieved 10/10 `SUPPORTS` verdicts (100%) with confirmed receipt triples (`ACCEPTED / MAJORITY_AGREE / SUCCESS`).
+  - Added `scripts/robustness_report.mjs` generating automated summary tables from committed raw receipts in `docs/evidence_m1/robustness_supports2/`.
+- **Pre-Registered Plan Restoration and Transparent Disclosure**:
+  - Restored `docs/M1_EXPECTED.md` to exact pre-registered commit `63efe26`.
+  - Added `docs/M1_EXPECTED_AMENDMENT.md` detailing the post-hoc substitution of `near_miss.md` with `contradicts.md` after validator consensus returned `NOT_ADDRESSED` on initial runs.
+  - Preserved on-chain evidence of initial attempts (Claims 2, 4, 6) in `docs/evidence_m1/first_attempt_near_miss.json`.
+  - Annotated scenario table in `docs/MILESTONE_1.md` with explicit plan references.
+- **Fixture Pinning & Cryptographic Hash Auditing**:
+  - Recorded git blob SHAs and SHA-256 digests for all 6 test fixtures in `docs/evidence_m1/fixture_hashes.txt`.
+  - Added verification script `scripts/check_fixtures.mjs` fetching remote HTTPS URLs and verifying 100% byte-for-byte hash matches.
+  - Documented upstream branch reference mutability risks and mitigations in `docs/MILESTONE_1.md` and `docs/THREAT_MODEL.md`.
+
+---
+
 ## [2.0.0] - 2026-10-20
 
 ### Added
